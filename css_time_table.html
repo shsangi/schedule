@@ -40,7 +40,7 @@
         .row.break-row.done { background: #e2e8f0; border-color: #cbd5e1; }
         .row.break-row.current { background: #fee9e7; border-color: #e53e3e; }
         .footer { margin-top: 14px; display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; color: #5e6f8d; border-top: 1px solid #e2e8f0; padding-top: 12px; flex-wrap: wrap; gap: 6px; }
-        .footer .pkt-clock { background: #eef2f6; padding: 2px 12px; border-radius: 20px; font-weight: 500; color: #1e293b; }
+        .footer .pkt-clock { background: #eef2f6; padding: 4px 14px; border-radius: 20px; font-weight: 500; color: #1e293b; font-size: 0.75rem; }
         .footer .exam-dates { display: flex; gap: 12px; font-weight: 500; color: #0b1e33; flex-wrap: wrap; }
         .footer .exam-dates .mpt-date { background: #dbeafe; padding: 2px 12px; border-radius: 20px; color: #1a4b8c; }
         .footer .exam-dates .written-date { background: #fee9e7; padding: 2px 12px; border-radius: 20px; color: #b91c1c; }
@@ -74,7 +74,7 @@
             <span class="mpt-date">📝 MPT: <span id="mptDateDisplay">27 Sep 2026</span> <span class="count-days" id="mptDays">--</span>d</span>
             <span class="written-date">✍️ Written: <span id="writtenDateDisplay">27 Jan 2027</span> <span class="count-days" id="writtenDays">--</span>d</span>
         </div>
-        <span class="pkt-clock">🇵🇰 <span id="pkTime">--:-- --</span></span>
+        <span class="pkt-clock" id="pkTimeDisplay">🇵🇰 <span id="pkTime">--:-- --</span></span>
     </div>
 </div>
 
@@ -109,6 +109,7 @@
         const remainingTimeMinutesEl = document.getElementById('remainingTimeMinutes');
         const remainingTimeSecondsEl = document.getElementById('remainingTimeSeconds');
         const pkTimeEl = document.getElementById('pkTime');
+        const pkTimeDisplayEl = document.getElementById('pkTimeDisplay');
         const doneCountEl = document.getElementById('doneCount');
         const remainingCountEl = document.getElementById('remainingCount');
         const mptDaysEl = document.getElementById('mptDays');
@@ -238,12 +239,31 @@
             return new Date(utc + (pkOffset * 60000));
         }
 
+        function formatFullDateTime(d) {
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            
+            const dayName = days[d.getDay()];
+            const day = d.getDate();
+            const month = months[d.getMonth()];
+            const year = d.getFullYear();
+            
+            let hours = d.getHours();
+            const minutes = d.getMinutes().toString().padStart(2, '0');
+            const seconds = d.getSeconds().toString().padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12;
+            
+            return `${dayName}, ${day} ${month}, ${year}, ${hours}:${minutes}:${seconds} ${ampm}`;
+        }
+
         function formatTime12(d) {
             let hours = d.getHours();
             const minutes = d.getMinutes().toString().padStart(2, '0');
+            const seconds = d.getSeconds().toString().padStart(2, '0');
             const ampm = hours >= 12 ? 'PM' : 'AM';
             hours = hours % 12 || 12;
-            return `${hours}:${minutes} ${ampm}`;
+            return `${hours}:${minutes}:${seconds} ${ampm}`;
         }
 
         function getDaysUntil(targetDate, nowPK) {
@@ -342,7 +362,10 @@
         // ----- Update UI -----
         function updateUI() {
             const nowPK = getPakistanTime();
-            pkTimeEl.textContent = formatTime12(nowPK);
+            
+            // Update with full date and time format
+            pkTimeDisplayEl.innerHTML = `🇵🇰 <span id="pkTime">${formatFullDateTime(nowPK)}</span>`;
+            
             mptDaysEl.textContent = Math.max(0, getDaysUntil(mptDate, nowPK));
             writtenDaysEl.textContent = Math.max(0, getDaysUntil(writtenDate, nowPK));
 
