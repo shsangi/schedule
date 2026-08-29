@@ -99,14 +99,25 @@
 </div>
 
 <script>
-// CONFIGURATION - Update these URLs for your sheets
-const SHEET_ID = '2PACX-1vTX16x-Eeh1mguy6se1B25x0hkRIzIme4pX71KlxpML_vZAD34mtlITIqFs8MCAVycXFFft82j1RZDc';
+// CONFIGURATION - Your Google Sheet ID
+const SHEET_ID = '1snRQ9V8cBfl9lOa2rJ9K26jXqe5FSgUdc4gbKbAh3ZU';
 
-// Main schedule sheet - reads from column A (Activity Name)
-const SCHEDULE_URL = `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?output=csv`;
+// Construct the published CSV URL
+// Note: You need to publish your sheet first via File > Share > Publish to web
+// Then replace the PUBLISHED_ID below with your actual published ID
+const PUBLISHED_ID = '2PACX-1vTX16x-Eeh1mguy6se1B25x0hkRIzIme4pX71KlxpML_vZAD34mtlITIqFs8MCAVycXFFft82j1RZDc';
+// If the above doesn't work, use this format after publishing:
+// const PUBLISHED_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/YOUR_PUBLISHED_ID/pub?output=csv';
 
-// Details sheet - reads from column B (Activity Name) for lookup
-const DETAILS_URL = `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=0&output=csv`;
+// For now, use the direct sheet export (may not work without publishing)
+const BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
+
+// Try both URLs - first try published, then fallback to export
+const SCHEDULE_URL = PUBLISHED_ID ? 
+    `https://docs.google.com/spreadsheets/d/e/${PUBLISHED_ID}/pub?output=csv` : 
+    BASE_URL;
+
+const DETAILS_URL = SCHEDULE_URL; // Same workbook, different sheet
 
 let schedule = [];
 let detailsData = {};
@@ -239,7 +250,6 @@ function parseDetailsCSV(text) {
     
     // Column B is Activity Name (index 1)
     const activityNameIdx = 1;
-    const activityName = headers[activityNameIdx] || 'Activity Name';
     
     // Build details data using Column B as the key
     for (let i = 1; i < lines.length; i++) {
@@ -259,35 +269,45 @@ function parseDetailsCSV(text) {
     }
     
     console.log('📋 Loaded details for', Object.keys(detailsData).length, 'activities');
-    console.log('🔍 Lookup keys:', Object.keys(detailsData).slice(0, 5));
+}
+
+// Fetch and parse CSV with sheet detection
+async function fetchSheetData(url) {
+    try {
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.text();
+    } catch (e) {
+        console.error('Fetch error:', e);
+        return null;
+    }
 }
 
 async function loadSchedule() {
     try {
-        // Load main schedule
-        const scheduleRes = await fetch(SCHEDULE_URL, { cache: 'no-store' });
-        if (!scheduleRes.ok) throw new Error('Failed to fetch schedule');
-        const scheduleText = await scheduleRes.text();
-        const parsed = parseScheduleCSV(scheduleText);
+        // Try published URL first
+        let csvText = await fetchSheetData(SCHEDULE_URL);
+        
+        // If that fails, try export URL
+        if (!csvText) {
+            console.log('⚠️ Published URL failed, trying export URL...');
+            csvText = await fetchSheetData(BASE_URL);
+        }
+        
+        if (!csvText) throw new Error('Could not fetch data');
+        
+        // Parse the CSV - it contains all sheets
+        const parsed = parseScheduleCSV(csvText);
         if (!parsed || !parsed.length) throw new Error('No schedule data found');
         schedule = parsed;
 
-        // Load details sheet
-        try {
-            const detailsRes = await fetch(DETAILS_URL, { cache: 'no-store' });
-            if (detailsRes.ok) {
-                const detailsText = await detailsRes.text();
-                parseDetailsCSV(detailsText);
-            } else {
-                console.log('⚠️ Details sheet not found, using only schedule');
-            }
-        } catch (e) {
-            console.log('⚠️ Could not load details sheet:', e.message);
-        }
+        // Parse details from the same CSV
+        parseDetailsCSV(csvText);
 
         return true;
     } catch (e) {
         console.error('Error:', e);
+        container.innerHTML = `<div class="error-text">❌ ${e.message}<br><small>Please publish your sheet: File → Share → Publish to web → CSV</small></div>`;
         return false;
     }
 }
@@ -330,7 +350,6 @@ function getCurrent(now) {
 }
 
 function showDetails(activityName) {
-    // Clean the activity name for lookup
     const cleanName = activityName.trim();
     const details = detailsData[cleanName];
     
@@ -411,12 +430,10 @@ document.getElementById('bannerClick').addEventListener('click', function() {
 
 async function init() {
     const loaded = await loadSchedule();
-    if (!loaded) {
-        container.innerHTML = '<div class="error-text">❌ Failed to load schedule<br><small>Please check your internet connection and try refreshing</small></div>';
-        return;
+    if (loaded && schedule.length) {
+        render();
+        setInterval(render, 1000);
     }
-    render();
-    setInterval(render, 1000);
 }
 
 document.addEventListener('DOMContentLoaded', init);
