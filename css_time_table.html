@@ -99,7 +99,14 @@
 </div>
 
 <script>
-const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTX16x-Eeh1mguy6se1B25x0hkRIzIme4pX71KlxpML_vZAD34mtlITIqFs8MCAVycXFFft82j1RZDc/pub?output=csv';
+// CONFIGURATION - Update these URLs for your sheets
+const SHEET_ID = '2PACX-1vTX16x-Eeh1mguy6se1B25x0hkRIzIme4pX71KlxpML_vZAD34mtlITIqFs8MCAVycXFFft82j1RZDc';
+
+// Main schedule sheet - reads from column A (Activity Name)
+const SCHEDULE_URL = `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?output=csv`;
+
+// Details sheet - reads from column B (Activity Name) for lookup
+const DETAILS_URL = `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=0&output=csv`;
 
 let schedule = [];
 let detailsData = {};
@@ -152,13 +159,16 @@ function getDaysUntil(target, now) {
     return Math.max(0, Math.ceil((t - n) / (1000 * 60 * 60 * 24)));
 }
 
-function parseCSV(text) {
+// Parse main schedule sheet - Column A is Activity Name
+function parseScheduleCSV(text) {
     const lines = text.split('\n').filter(l => l.trim());
     if (lines.length < 2) return null;
     
     const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+    
+    // Find columns: A=subject/activity, B=from, C=to, D=duration, E=type
     const idx = {
-        subject: headers.findIndex(h => h.includes('activity') || h.includes('subject')),
+        subject: 0, // Column A
         from: headers.findIndex(h => h === 'from' || h === 'start'),
         to: headers.findIndex(h => h === 'to' || h === 'end'),
         duration: headers.findIndex(h => h === 'duration' || h === 'time'),
@@ -167,6 +177,11 @@ function parseCSV(text) {
         written: headers.findIndex(h => h.includes('written') || h.includes('exam'))
     };
 
+    // If headers not found, use column positions (A=0, B=1, C=2, D=3)
+    if (idx.from === -1) idx.from = 1;
+    if (idx.to === -1) idx.to = 2;
+    if (idx.duration === -1) idx.duration = 3;
+
     const data = [];
     let mptStr = null, writtenStr = null;
 
@@ -174,10 +189,10 @@ function parseCSV(text) {
         const cols = lines[i].split(',').map(c => c.trim());
         if (cols.length < 4 || cols.every(c => !c)) continue;
 
-        const subject = idx.subject >= 0 ? cols[idx.subject] : cols[0] || '';
-        let from = (idx.from >= 0 ? cols[idx.from] : cols[1] || '').replace(/\s/g, '');
-        let to = (idx.to >= 0 ? cols[idx.to] : cols[2] || '').replace(/\s/g, '');
-        let duration = (idx.duration >= 0 ? cols[idx.duration] : cols[3] || '').replace(/\s/g, '');
+        const subject = cols[idx.subject] || '';
+        let from = (idx.from >= 0 && idx.from < cols.length ? cols[idx.from] : '').replace(/\s/g, '');
+        let to = (idx.to >= 0 && idx.to < cols.length ? cols[idx.to] : '').replace(/\s/g, '');
+        let duration = (idx.duration >= 0 && idx.duration < cols.length ? cols[idx.duration] : '').replace(/\s/g, '');
 
         if (idx.mpt >= 0 && cols[idx.mpt]?.match(/\d{1,2}\s+[A-Za-z]{3}\s+\d{4}/)) mptStr = cols[idx.mpt];
         if (idx.written >= 0 && cols[idx.written]?.match(/\d{1,2}\s+[A-Za-z]{3}\s+\d{4}/)) writtenStr = cols[idx.written];
@@ -215,61 +230,62 @@ function parseCSV(text) {
     return data.length ? data : null;
 }
 
-// Fetch details from "Details of activity" sheet
-async function fetchDetails() {
-    try {
-        // Try to get details from the same sheet but different sheet name
-        // Since we can't directly query by sheet name in CSV export, we'll use the same URL
-        // The details should be in the same CSV with additional columns
-        const res = await fetch(SHEET_URL, { cache: 'no-store' });
-        if (!res.ok) throw new Error('Failed to fetch details');
-        const csv = await res.text();
-        const lines = csv.split('\n').filter(l => l.trim());
-        if (lines.length < 2) return;
+// Parse details sheet - Column B is Activity Name (lookup key)
+function parseDetailsCSV(text) {
+    const lines = text.split('\n').filter(l => l.trim());
+    if (lines.length < 2) return;
+    
+    const headers = lines[0].split(',').map(h => h.trim());
+    
+    // Column B is Activity Name (index 1)
+    const activityNameIdx = 1;
+    const activityName = headers[activityNameIdx] || 'Activity Name';
+    
+    // Build details data using Column B as the key
+    for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(',').map(c => c.trim());
+        if (cols.length < 2 || cols.every(c => !c)) continue;
         
-        const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-        const activityIdx = headers.findIndex(h => h.includes('activity') || h.includes('subject'));
+        const key = cols[activityNameIdx] || '';
+        if (!key) continue;
         
-        if (activityIdx === -1) return;
-        
-        // Find all columns that could be detail fields
-        const detailColumns = headers.filter((h, i) => i !== activityIdx && h && !h.includes('from') && !h.includes('to') && !h.includes('duration') && !h.includes('type') && !h.includes('mpt') && !h.includes('written') && !h.includes('test') && !h.includes('exam'));
-        
-        // Build details data
-        for (let i = 1; i < lines.length; i++) {
-            const cols = lines[i].split(',').map(c => c.trim());
-            if (cols.length < 2 || cols.every(c => !c)) continue;
-            
-            const activityName = cols[activityIdx] || '';
-            if (!activityName) continue;
-            
-            detailsData[activityName] = {};
-            for (const col of detailColumns) {
-                const colIdx = headers.indexOf(col);
-                if (colIdx !== -1 && cols[colIdx]) {
-                    detailsData[activityName][col] = cols[colIdx];
-                }
+        detailsData[key] = {};
+        for (let j = 0; j < headers.length; j++) {
+            if (j !== activityNameIdx && cols[j]) {
+                const label = headers[j] || `Column ${j}`;
+                detailsData[key][label] = cols[j];
             }
         }
-        
-        console.log('📋 Loaded details for', Object.keys(detailsData).length, 'activities');
-    } catch (e) {
-        console.error('Error fetching details:', e);
     }
+    
+    console.log('📋 Loaded details for', Object.keys(detailsData).length, 'activities');
+    console.log('🔍 Lookup keys:', Object.keys(detailsData).slice(0, 5));
 }
 
 async function loadSchedule() {
     try {
-        const res = await fetch(SHEET_URL, { cache: 'no-store' });
-        if (!res.ok) throw new Error('Failed to fetch');
-        const csv = await res.text();
-        const parsed = parseCSV(csv);
-        if (parsed && parsed.length) {
-            schedule = parsed;
-            await fetchDetails(); // Load details after schedule
-            return true;
+        // Load main schedule
+        const scheduleRes = await fetch(SCHEDULE_URL, { cache: 'no-store' });
+        if (!scheduleRes.ok) throw new Error('Failed to fetch schedule');
+        const scheduleText = await scheduleRes.text();
+        const parsed = parseScheduleCSV(scheduleText);
+        if (!parsed || !parsed.length) throw new Error('No schedule data found');
+        schedule = parsed;
+
+        // Load details sheet
+        try {
+            const detailsRes = await fetch(DETAILS_URL, { cache: 'no-store' });
+            if (detailsRes.ok) {
+                const detailsText = await detailsRes.text();
+                parseDetailsCSV(detailsText);
+            } else {
+                console.log('⚠️ Details sheet not found, using only schedule');
+            }
+        } catch (e) {
+            console.log('⚠️ Could not load details sheet:', e.message);
         }
-        return false;
+
+        return true;
     } catch (e) {
         console.error('Error:', e);
         return false;
@@ -314,18 +330,22 @@ function getCurrent(now) {
 }
 
 function showDetails(activityName) {
-    const details = detailsData[activityName];
+    // Clean the activity name for lookup
+    const cleanName = activityName.trim();
+    const details = detailsData[cleanName];
+    
     if (!details || Object.keys(details).length === 0) {
-        detailContent.innerHTML = '<p style="color: #94a3b8; font-size: 0.85rem;">No additional details available for this activity.</p>';
+        detailContent.innerHTML = `<p style="color: #94a3b8; font-size: 0.85rem;">No additional details available for "${cleanName}"</p>`;
     } else {
         let html = '';
         for (const [key, value] of Object.entries(details)) {
-            const label = key.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-            html += `<div class="detail-item"><span class="label">${label}:</span><span class="value">${value || '—'}</span></div>`;
+            if (value && value.trim()) {
+                html += `<div class="detail-item"><span class="label">${key}:</span><span class="value">${value}</span></div>`;
+            }
         }
-        detailContent.innerHTML = html;
+        detailContent.innerHTML = html || '<p style="color: #94a3b8; font-size: 0.85rem;">No additional details available.</p>';
     }
-    detailTitle.textContent = `📋 ${activityName}`;
+    detailTitle.textContent = `📋 ${cleanName}`;
     detailsPanel.classList.add('active');
 }
 
@@ -368,7 +388,8 @@ function render() {
 
         const emoji = { core: ' ✏️', compulsory: ' 📖', optional: ' 📚', mpt: ' 📝', review: ' 📘', break: '', sleep: ' 🌙' };
         const hasDetails = detailsData[s.subject] && Object.keys(detailsData[s.subject]).length > 0;
-        html += `<div class="${cls}" onclick="showDetails('${s.subject.replace(/'/g, "\\'")}')" title="${hasDetails ? 'Click for details' : ''}">
+        const escapedSubject = s.subject.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        html += `<div class="${cls}" onclick="showDetails('${escapedSubject}')" title="${hasDetails ? 'Click for details' : ''}">
             <span class="srno">${i + 1}</span>
             <span class="time">${s.from} – ${s.to}</span>
             <span class="subject">${s.subject}${emoji[s.type] || ''}${hasDetails ? ' 📋' : ''}</span>
