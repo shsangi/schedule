@@ -155,7 +155,7 @@
                 <span>📊 Duration: <strong id="modalDuration">--</strong></span>
             </div>
             <div class="detail-section">
-                <h4>📋 Activity Agenda <span style="font-weight:normal;font-size:0.7rem;color:#94a3b8;">(Newest first)</span></h4>
+                <h4>📋 ALL RECORDS <span style="font-weight:normal;font-size:0.7rem;color:#94a3b8;">(Newest first)</span></h4>
                 <div id="modalAgendaList">
                     <div class="agenda-item">
                         <div class="agenda-text">No agenda available</div>
@@ -227,25 +227,87 @@
         const modalDuration = document.getElementById('modalDuration');
         const modalAgendaList = document.getElementById('modalAgendaList');
 
-        // ----- FALLBACK DETAILS (for testing when sheet is not available) -----
+        // ----- FALLBACK DETAILS WITH PROPER AGENDA -----
         const FALLBACK_DETAILS = {
-            "English Essay & Précis and Reading": [
-                { timestamp: "2026-08-29 10:00:00", activityName: "English Essay & Précis and Reading", agenda: "1. Essay Structure: Introduction, Body, Conclusion\n2. Précis Practice - Passage 1\n3. Vocabulary Building - 50 new words", dateTodo: "2026-08-30", refLink: "https://drive.google.com/css-essay-guide", remarks: "Focus on writing strong thesis statements", priority: "High" },
-                { timestamp: "2026-08-30 10:00:00", activityName: "English Essay & Précis and Reading", agenda: "1. Body Paragraph Development\n2. Précis Practice - Passage 2\n3. Vocabulary Review & Usage", dateTodo: "2026-08-31", refLink: "https://drive.google.com/css-essay-guide", remarks: "Work on logical flow of arguments", priority: "High" }
-            ],
             "Pakistan Affairs": [
-                { timestamp: "2026-08-29 10:00:00", activityName: "Pakistan Affairs", agenda: "1. Pakistan Movement Timeline (1857-1947)\n2. Constitutional Amendments: 1st to 18th\n3. Current Affairs: Pakistan Politics", dateTodo: "2026-08-30", refLink: "https://drive.google.com/pakistan-affairs", remarks: "Focus on 1973 Constitution & 18th Amendment", priority: "High" },
-                { timestamp: "2026-08-30 10:00:00", activityName: "Pakistan Affairs", agenda: "1. Economic Development & 5-Year Plans\n2. Social Issues: Education & Health\n3. Pakistan's Role in UN & OIC", dateTodo: "2026-08-31", refLink: "https://drive.google.com/pakistan-affairs", remarks: "Connect historical events with current situation", priority: "High" }
+                { 
+                    timestamp: "2026-08-29 10:00:00", 
+                    activityName: "Pakistan Affairs", 
+                    agenda: "1. Pakistan Movement Timeline (1857-1947)\n2. Constitutional Amendments: 1st to 18th\n3. Current Affairs: Pakistan Politics\n4. Foreign Policy Analysis", 
+                    dateTodo: "2026-08-30", 
+                    refLink: "https://drive.google.com/pakistan-affairs", 
+                    remarks: "Focus on 1973 Constitution & 18th Amendment", 
+                    priority: "High" 
+                },
+                { 
+                    timestamp: "2026-08-30 10:00:00", 
+                    activityName: "Pakistan Affairs", 
+                    agenda: "1. Economic Development & 5-Year Plans\n2. Social Issues: Education & Health\n3. Pakistan's Role in UN & OIC\n4. Regional Politics: SAARC, ECO", 
+                    dateTodo: "2026-08-31", 
+                    refLink: "https://drive.google.com/pakistan-affairs", 
+                    remarks: "Connect historical events with current situation", 
+                    priority: "High" 
+                },
+                { 
+                    timestamp: "2026-08-31 10:00:00", 
+                    activityName: "Pakistan Affairs", 
+                    agenda: "1. Kashmir Issue: Historical Perspective\n2. Water Crisis & Indus Water Treaty\n3. National Security Challenges\n4. Review of Past CSS Pakistan Affairs MCQs", 
+                    dateTodo: "2026-09-01", 
+                    refLink: "https://drive.google.com/pakistan-affairs", 
+                    remarks: "Understand Pakistan's geopolitical position", 
+                    priority: "High" 
+                }
+            ],
+            "English Essay & Précis and Reading": [
+                { 
+                    timestamp: "2026-08-29 10:00:00", 
+                    activityName: "English Essay & Précis and Reading", 
+                    agenda: "1. Essay Structure: Introduction, Body, Conclusion\n2. Précis Practice - Passage 1\n3. Vocabulary Building - 50 new words\n4. Past CSS Essay Analysis", 
+                    dateTodo: "2026-08-30", 
+                    refLink: "https://drive.google.com/css-essay-guide", 
+                    remarks: "Focus on writing strong thesis statements", 
+                    priority: "High" 
+                },
+                { 
+                    timestamp: "2026-08-30 10:00:00", 
+                    activityName: "English Essay & Précis and Reading", 
+                    agenda: "1. Body Paragraph Development\n2. Précis Practice - Passage 2\n3. Vocabulary Review & Usage\n4. Argument Building Exercise", 
+                    dateTodo: "2026-08-31", 
+                    refLink: "https://drive.google.com/css-essay-guide", 
+                    remarks: "Work on logical flow of arguments", 
+                    priority: "High" 
+                }
             ],
             "Current Affairs": [
-                { timestamp: "2026-08-29 10:00:00", activityName: "Current Affairs", agenda: "1. International Relations: US-China Relations\n2. Global Economy: Inflation & Trade\n3. Technology News: AI & Cybersecurity", dateTodo: "2026-08-30", refLink: "https://drive.google.com/current-affairs", remarks: "Read Dawn & BBC News daily", priority: "High" }
+                { 
+                    timestamp: "2026-08-29 10:00:00", 
+                    activityName: "Current Affairs", 
+                    agenda: "1. International Relations: US-China Relations\n2. Global Economy: Inflation & Trade\n3. Technology News: AI & Cybersecurity\n4. Environmental Issues: COP28", 
+                    dateTodo: "2026-08-30", 
+                    refLink: "https://drive.google.com/current-affairs", 
+                    remarks: "Read Dawn & BBC News daily", 
+                    priority: "High" 
+                }
             ],
             "MPT Practice Test (MCQs)": [
-                { timestamp: "2026-08-29 10:00:00", activityName: "MPT Practice Test (MCQs)", agenda: "1. Full MPT Mock Test - 200 MCQs\n2. Time Management: 3 Hours\n3. Answer Analysis & Review", dateTodo: "2026-08-30", refLink: "https://drive.google.com/mpt-papers", remarks: "Focus on time management", priority: "High" },
-                { timestamp: "2026-08-30 10:00:00", activityName: "MPT Practice Test (MCQs)", agenda: "1. Subject-wise MCQs: Pakistan Affairs\n2. Subject-wise MCQs: Current Affairs\n3. Subject-wise MCQs: Islamic Studies", dateTodo: "2026-08-31", refLink: "https://drive.google.com/mpt-papers", remarks: "Target: 80% accuracy", priority: "High" }
-            ],
-            "Review · Notes": [
-                { timestamp: "2026-08-29 10:00:00", activityName: "Review · Notes", agenda: "1. Daily Learning Review\n2. Notes Organization & Summary\n3. Connect Topics Across Subjects", dateTodo: "2026-08-30", refLink: "https://drive.google.com/note-templates", remarks: "Use active recall method", priority: "Medium" }
+                { 
+                    timestamp: "2026-08-29 10:00:00", 
+                    activityName: "MPT Practice Test (MCQs)", 
+                    agenda: "1. Full MPT Mock Test - 200 MCQs\n2. Time Management: 3 Hours\n3. Answer Analysis & Review\n4. Weak Areas Identification", 
+                    dateTodo: "2026-08-30", 
+                    refLink: "https://drive.google.com/mpt-papers", 
+                    remarks: "Focus on time management", 
+                    priority: "High" 
+                },
+                { 
+                    timestamp: "2026-08-30 10:00:00", 
+                    activityName: "MPT Practice Test (MCQs)", 
+                    agenda: "1. Subject-wise MCQs: Pakistan Affairs\n2. Subject-wise MCQs: Current Affairs\n3. Subject-wise MCQs: Islamic Studies\n4. Mock Test Analysis", 
+                    dateTodo: "2026-08-31", 
+                    refLink: "https://drive.google.com/mpt-papers", 
+                    remarks: "Target: 80% accuracy", 
+                    priority: "High" 
+                }
             ]
         };
 
@@ -313,12 +375,16 @@
             return parsed.length > 0 ? parsed : null;
         }
 
-        // ----- Parse CSV (Activity Details) with better matching -----
+        // ----- Parse CSV (Activity Details) with better handling -----
         function parseCSVToDetails(csvText) {
             const lines = csvText.split('\n').filter(line => line.trim() !== '');
             if (lines.length < 2) return {};
 
+            // Log first few lines for debugging
+            console.log('📄 First 3 lines of CSV:', lines.slice(0, 3));
+
             const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+            console.log('📋 Headers found:', headers);
             
             const timestampIdx = headers.findIndex(h => h.includes('timestamp'));
             const activityIdx = headers.findIndex(h => h.includes('activity name') || h.includes('activity'));
@@ -327,6 +393,8 @@
             const refLinkIdx = headers.findIndex(h => h.includes('ref link') || h.includes('link') || h.includes('url'));
             const remarksIdx = headers.findIndex(h => h.includes('remarks') || h.includes('remark') || h.includes('note'));
             const priorityIdx = headers.findIndex(h => h.includes('priority'));
+
+            console.log('📌 Column indices:', { timestampIdx, activityIdx, agendaIdx, dateTodoIdx, refLinkIdx, remarksIdx, priorityIdx });
 
             const detailsMap = {};
 
@@ -338,23 +406,34 @@
                 let activityName = activityIdx !== -1 ? cols[activityIdx] : cols[0] || '';
                 if (!activityName) continue;
 
-                // Clean activity name for better matching
+                // Clean activity name
                 const cleanName = activityName.replace(/[☕🌙📚📖✏️📝📘📋]/g, '').trim();
                 
                 if (!detailsMap[cleanName]) {
                     detailsMap[cleanName] = [];
                 }
 
+                // Get agenda and handle line breaks (CSV might have \n or actual line breaks)
+                let agenda = '';
+                if (agendaIdx !== -1 && cols.length > agendaIdx) {
+                    agenda = cols[agendaIdx];
+                    // Replace \n with actual newlines
+                    agenda = agenda.replace(/\\n/g, '\n');
+                    // Also handle if there are multiple lines in the cell
+                    agenda = agenda.replace(/\r\n/g, '\n');
+                }
+
                 const detail = {
-                    timestamp: timestampIdx !== -1 ? cols[timestampIdx] : '',
+                    timestamp: timestampIdx !== -1 && cols.length > timestampIdx ? cols[timestampIdx] : '',
                     activityName: cleanName,
-                    agenda: agendaIdx !== -1 ? cols[agendaIdx].replace(/\\n/g, '\n') : '',
-                    dateTodo: dateTodoIdx !== -1 ? cols[dateTodoIdx] : '',
-                    refLink: refLinkIdx !== -1 ? cols[refLinkIdx] : '',
-                    remarks: remarksIdx !== -1 ? cols[remarksIdx] : '',
-                    priority: priorityIdx !== -1 ? cols[priorityIdx] : ''
+                    agenda: agenda,
+                    dateTodo: dateTodoIdx !== -1 && cols.length > dateTodoIdx ? cols[dateTodoIdx] : '',
+                    refLink: refLinkIdx !== -1 && cols.length > refLinkIdx ? cols[refLinkIdx] : '',
+                    remarks: remarksIdx !== -1 && cols.length > remarksIdx ? cols[remarksIdx] : '',
+                    priority: priorityIdx !== -1 && cols.length > priorityIdx ? cols[priorityIdx] : ''
                 };
 
+                console.log(`📝 Found detail for "${cleanName}":`, detail);
                 detailsMap[cleanName].push(detail);
             }
 
@@ -365,6 +444,7 @@
                 });
             }
 
+            console.log('✅ Parsed details map:', Object.keys(detailsMap));
             return detailsMap;
         }
 
@@ -403,14 +483,17 @@
         // ----- Fetch activity details -----
         async function loadActivityDetails() {
             try {
+                console.log('📡 Fetching details from:', DETAILS_CSV_URL);
                 const response = await fetch(DETAILS_CSV_URL, { cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } });
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const csvText = await response.text();
+                console.log('📄 CSV length:', csvText.length);
                 const parsed = parseCSVToDetails(csvText);
                 if (Object.keys(parsed).length > 0) {
                     activityDetailsCache = parsed;
                     detailsLoaded = true;
                     console.log('✅ Loaded details for', Object.keys(parsed).length, 'activities');
+                    console.log('📊 Details cache:', activityDetailsCache);
                     return true;
                 }
                 return false;
@@ -419,7 +502,7 @@
                 // Use fallback details
                 activityDetailsCache = FALLBACK_DETAILS;
                 detailsLoaded = true;
-                console.log('📋 Using fallback details');
+                console.log('📋 Using fallback details with', Object.keys(FALLBACK_DETAILS).length, 'activities');
                 return true;
             }
         }
@@ -429,32 +512,30 @@
             // Clean the activity name
             const cleanName = activityName.replace(/[☕🌙📚📖✏️📝📘📋]/g, '').trim();
             
+            console.log(`🔍 Looking for details for: "${cleanName}"`);
+            console.log('📚 Available in cache:', Object.keys(activityDetailsCache));
+            
             // Try exact match first
             if (activityDetailsCache[cleanName]) {
+                console.log(`✅ Found exact match for "${cleanName}"`);
                 return activityDetailsCache[cleanName];
             }
             
             // Try with the original name
             if (activityDetailsCache[activityName]) {
+                console.log(`✅ Found match with original name "${activityName}"`);
                 return activityDetailsCache[activityName];
             }
             
             // Try partial match
             for (const key in activityDetailsCache) {
                 if (cleanName.includes(key) || key.includes(cleanName)) {
+                    console.log(`✅ Found partial match: "${key}" for "${cleanName}"`);
                     return activityDetailsCache[key];
                 }
             }
             
-            // Check if it's a break or sleep
-            if (cleanName.toLowerCase().includes('break') || cleanName.toLowerCase().includes('lunch') || 
-                cleanName.toLowerCase().includes('dinner') || cleanName.toLowerCase().includes('sleep') ||
-                cleanName.toLowerCase().includes('night rest')) {
-                // Return empty array for breaks/sleep
-                return [];
-            }
-            
-            // Return empty array if no match
+            console.log(`❌ No details found for "${cleanName}"`);
             return [];
         }
 
@@ -557,6 +638,8 @@
             
             // Get details using improved matching
             const details = getDetailsForActivity(activityName);
+            
+            console.log(`📊 Showing details for "${cleanName}":`, details.length, 'records');
             
             // Set basic info
             modalIcon.textContent = getIconForActivity(cleanName);
