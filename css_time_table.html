@@ -429,4 +429,301 @@
             if (!dateStr) return '--';
             try {
                 const d = new Date(dateStr);
-                if (isNaN(d.getTime())) return
+                if (isNaN(d.getTime())) return dateStr;
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+            } catch {
+                return dateStr;
+            }
+        }
+
+        function getDaysUntil(targetDate, nowPK) {
+            const target = new Date(targetDate);
+            target.setHours(0, 0, 0, 0);
+            const now = new Date(nowPK);
+            now.setHours(0, 0, 0, 0);
+            const diffTime = target.getTime() - now.getTime();
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        }
+
+        // ----- Get current index & remaining seconds -----
+        function getCurrentIndexAndRemaining(nowPK) {
+            const nowSecondsInDay = (nowPK.getHours() * 3600) + (nowPK.getMinutes() * 60) + nowPK.getSeconds();
+            let currentIdx = -1;
+            let remainingSeconds = 0;
+
+            for (let i = 0; i < schedule.length; i++) {
+                const s = schedule[i];
+                const fromParts = s.from.split(':').map(Number);
+                const toParts = s.to.split(':').map(Number);
+                const fromSec = (fromParts[0] * 3600) + (fromParts[1] * 60);
+                let toSec = (toParts[0] * 3600) + (toParts[1] * 60);
+
+                let isActive = false;
+                if (toSec < fromSec) {
+                    if (nowSecondsInDay >= fromSec || nowSecondsInDay < toSec) {
+                        isActive = true;
+                        if (nowSecondsInDay >= fromSec) remainingSeconds = (86400 - nowSecondsInDay) + toSec;
+                        else remainingSeconds = toSec - nowSecondsInDay;
+                    }
+                } else {
+                    if (nowSecondsInDay >= fromSec && nowSecondsInDay < toSec) {
+                        isActive = true;
+                        remainingSeconds = toSec - nowSecondsInDay;
+                    }
+                }
+                if (isActive) { currentIdx = i; break; }
+            }
+
+            if (currentIdx === -1) {
+                let minDiff = Infinity;
+                let candidate = -1;
+                for (let i = 0; i < schedule.length; i++) {
+                    const s = schedule[i];
+                    const fromParts = s.from.split(':').map(Number);
+                    const fromSec = (fromParts[0] * 3600) + (fromParts[1] * 60);
+                    let diff = fromSec - nowSecondsInDay;
+                    if (diff < 0) diff += 86400;
+                    if (diff < minDiff) { minDiff = diff; candidate = i; }
+                }
+                if (candidate !== -1) { currentIdx = candidate; remainingSeconds = minDiff; }
+                else { currentIdx = 0; remainingSeconds = 0; }
+            }
+            return { currentIdx, remainingSeconds };
+        }
+
+        // ----- Show modal with ALL activity details -----
+        function showModal(activityName, from, to, duration) {
+            const cleanName = activityName.replace(/[☕🌙📚📖✏️📝📘📋]/g, '').trim();
+            
+            // Get ALL details from cache
+            const details = activityDetailsCache[cleanName] || activityDetailsCache[activityName] || [];
+            
+            // Set basic info
+            modalIcon.textContent = getIconForActivity(cleanName);
+            modalTitle.textContent = cleanName;
+            modalType.textContent = getTypeForActivity(cleanName);
+            modalRecordCount.textContent = `${details.length} records`;
+            modalFrom.textContent = from;
+            modalTo.textContent = to;
+            modalDuration.textContent = duration;
+
+            // Build agenda list - ALL records displayed
+            if (details.length > 0) {
+                let html = '';
+                details.forEach((detail, index) => {
+                    const priority = detail.priority || '';
+                    let priorityBadge = '';
+                    if (priority) {
+                        const pLower = priority.toLowerCase();
+                        let badgeClass = 'priority-low';
+                        if (pLower === 'high') badgeClass = 'priority-high';
+                        else if (pLower === 'medium') badgeClass = 'priority-medium';
+                        priorityBadge = `<span class="priority-badge ${badgeClass}">${priority}</span>`;
+                    }
+
+                    // Parse agenda items
+                    const agendaItems = detail.agenda ? detail.agenda.split('<br>').filter(item => item.trim()) : [];
+                    const agendaText = agendaItems.length > 0 ? 
+                        agendaItems.map(item => `<div class="agenda-line">• ${item.trim()}</div>`).join('') : 
+                        '<div class="agenda-line" style="color:#94a3b8;">No agenda items</div>';
+
+                    html += `
+                        <div class="agenda-item">
+                            <div class="agenda-date">
+                                📅 ${detail.timestamp ? new Date(detail.timestamp).toLocaleString() : 'Date not set'}
+                                ${detail.dateTodo ? ` | 🎯 Todo: ${formatDate(detail.dateTodo)}` : ''}
+                                ${priorityBadge}
+                            </div>
+                            <div class="agenda-text">${agendaText}</div>
+                            ${detail.remarks ? `<div class="agenda-remarks">💡 ${detail.remarks}</div>` : ''}
+                            ${detail.refLink ? `<div class="agenda-link">🔗 <a href="${detail.refLink}" target="_blank">${detail.refLink}</a></div>` : ''}
+                        </div>
+                    `;
+                });
+                modalAgendaList.innerHTML = html;
+            } else {
+                modalAgendaList.innerHTML = `
+                    <div class="no-records">
+                        📭 No agenda records found for this activity<br>
+                        <small style="color:#94a3b8;">Add records in the "Activity Details" sheet</small>
+                    </div>
+                `;
+            }
+
+            modalOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // ----- Helper functions for modal -----
+        function getIconForActivity(name) {
+            const icons = {
+                'English Essay': '✏️',
+                'GSA': '🔬',
+                'Pakistan Affairs': '🇵🇰',
+                'Current Affairs': '📰',
+                'Islamic Studies': '🕌',
+                'Computer Science': '💻',
+                'Public Administration': '🏛️',
+                'History of USA': '🇺🇸',
+                'Criminology': '⚖️',
+                'Gender studies': '👩‍⚖️',
+                'English Grammer': '📝',
+                'English Grammar': '📝',
+                'MPT Practice': '📝',
+                'Review': '📘',
+                'Sleep': '🌙'
+            };
+            for (const [key, icon] of Object.entries(icons)) {
+                if (name.includes(key)) return icon;
+            }
+            return '📚';
+        }
+
+        function getTypeForActivity(name) {
+            if (name.includes('English Essay') || name.includes('GSA') || name.includes('Pakistan') || 
+                name.includes('Current') || name.includes('Islamic')) {
+                return 'Compulsory';
+            }
+            if (name.includes('Optional') || name.includes('Computer') || name.includes('History') || 
+                name.includes('Criminology') || name.includes('Gender') || name.includes('Administration')) {
+                return 'Optional';
+            }
+            if (name.includes('MPT')) return 'MPT';
+            if (name.includes('Review')) return 'Review';
+            if (name.includes('Break')) return 'Break';
+            if (name.includes('Sleep')) return 'Rest';
+            return 'Activity';
+        }
+
+        // ----- Close modal -----
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // ----- Modal event listeners -----
+        modalClose.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) closeModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // ----- Render schedule -----
+        function renderSchedule(currentIdx) {
+            let html = '';
+            let doneCount = 0;
+            let remainingCount = 0;
+
+            for (let i = 0; i < schedule.length; i++) {
+                const s = schedule[i];
+                const isBreak = s.type === 'break' || s.type === 'sleep';
+                let rowClass = 'row';
+                let status = 'upcoming';
+                if (i < currentIdx) status = 'done';
+                else if (i === currentIdx) status = 'current';
+
+                if (status === 'done') { rowClass += ' done'; doneCount++; }
+                else if (status === 'current') { rowClass += ' current'; remainingCount++; }
+                else { remainingCount++; }
+                if (isBreak) rowClass += ' break-row';
+
+                const srno = i + 1;
+                const timeLabel = `${s.from} – ${s.to}`;
+                let subjectDisplay = s.subject;
+                const typeEmoji = { 'core': ' ✏️', 'compulsory': ' 📖', 'optional': ' 📚', 'mpt': ' 📝', 'review': ' 📘', 'break': '', 'sleep': ' 🌙' };
+                subjectDisplay += typeEmoji[s.type] || '';
+
+                // Get record count for this activity
+                const cleanName = s.subject.replace(/[☕🌙📚📖✏️📝📘📋]/g, '').trim();
+                const recordCount = (activityDetailsCache[cleanName] || activityDetailsCache[s.subject] || []).length;
+                const countBadge = recordCount > 0 ? `<span class="record-count">${recordCount} 📋</span>` : '';
+
+                html += `<div class="${rowClass}" data-subject="${s.subject}" data-from="${s.from}" data-to="${s.to}" data-duration="${s.duration}">
+                    <span class="srno">${srno}</span>
+                    <span class="time">${timeLabel}</span>
+                    <span class="subject">${subjectDisplay} ${countBadge}</span>
+                    <span class="duration-badge">${s.duration}</span>
+                    <span class="click-hint">ⓘ</span>
+                </div>`;
+            }
+
+            container.innerHTML = html;
+            doneCountEl.textContent = doneCount;
+            remainingCountEl.textContent = remainingCount;
+
+            // Add click event listeners to rows
+            document.querySelectorAll('.row').forEach(row => {
+                row.addEventListener('click', function() {
+                    const subject = this.dataset.subject;
+                    const from = this.dataset.from;
+                    const to = this.dataset.to;
+                    const duration = this.dataset.duration;
+                    showModal(subject, from, to, duration);
+                });
+            });
+        }
+
+        // ----- Update UI -----
+        function updateUI() {
+            const nowPK = getPakistanTime();
+            pkTimeDisplayEl.innerHTML = `🇵🇰 <span id="pkTime">${formatFullDateTime(nowPK)}</span>`;
+            
+            mptDaysEl.textContent = Math.max(0, getDaysUntil(mptDate, nowPK));
+            writtenDaysEl.textContent = Math.max(0, getDaysUntil(writtenDate, nowPK));
+
+            const { currentIdx, remainingSeconds } = getCurrentIndexAndRemaining(nowPK);
+            const currentItem = schedule[currentIdx] || schedule[0];
+
+            let activityText = currentItem.subject;
+            const prefixMap = { 'core': '📘 ', 'compulsory': '📖 ', 'optional': '📚 ', 'mpt': '📝 ', 'review': '📋 ' };
+            if (currentItem.type === 'break') activityText = '☕ ' + currentItem.subject.replace('☕ ', '');
+            else if (currentItem.type === 'sleep') activityText = '🌙 ' + currentItem.subject.replace('🌙 ', '');
+            else { const prefix = prefixMap[currentItem.type] || ''; activityText = prefix + currentItem.subject; }
+            currentActivityEl.textContent = activityText;
+
+            const mins = Math.floor(remainingSeconds / 60);
+            const secs = Math.floor(remainingSeconds % 60);
+            remainingTimeMinutesEl.textContent = String(mins).padStart(2, '0');
+            remainingTimeSecondsEl.textContent = String(secs).padStart(2, '0');
+
+            renderSchedule(currentIdx);
+        }
+
+        // ----- Init -----
+        async function init() {
+            container.innerHTML = '<div class="loading-text">⏳ Loading schedule…</div>';
+            
+            // Load schedule
+            const scheduleLoaded = await loadScheduleFromSheet();
+            
+            // Load activity details in background
+            loadActivityDetails().then(success => {
+                if (success) {
+                    console.log('✅ Activity details loaded');
+                } else {
+                    console.log('⚠️ Using fallback details');
+                }
+                // Re-render to show record counts
+                const nowPK = getPakistanTime();
+                const { currentIdx } = getCurrentIndexAndRemaining(nowPK);
+                renderSchedule(currentIdx);
+            });
+
+            if (!scheduleLoaded) {
+                container.innerHTML = '<div class="loading-text">⚠️ Using fallback schedule<br><small>Click any activity for details</small></div>';
+            } else {
+                container.innerHTML = '<div class="loading-text">✅ Schedule loaded! <span class="cache-badge">⚡ click any activity for details</span><br><small>CSS 2027 Study Plan</small></div>';
+            }
+            
+            updateUI();
+            setInterval(updateUI, 1000);
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    })();
+</script>
+</body>
+</html>
