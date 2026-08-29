@@ -8,13 +8,11 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
         body { background: #f2f6fc; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px; }
         .card { max-width: 640px; width: 100%; background: #ffffff; border-radius: 28px; box-shadow: 0 8px 24px rgba(0,0,0,0.04); padding: 16px 14px 18px; border: 1px solid rgba(0,20,40,0.03); }
-        .banner { background: #0b1e33; color: white; border-radius: 60px; padding: 8px 20px; display: flex; align-items: center; gap: 10px; margin-bottom: 14px; min-height: 48px; cursor: pointer; transition: background 0.2s; }
-        .banner:hover { background: #162d4a; }
+        .banner { background: #0b1e33; color: white; border-radius: 60px; padding: 8px 20px; display: flex; align-items: center; gap: 10px; margin-bottom: 14px; min-height: 48px; }
         .banner-activity { display: flex; align-items: center; gap: 10px; flex: 1; }
         .status-dot { display: inline-block; width: 10px; height: 10px; background: #4ade80; border-radius: 50%; flex-shrink: 0; animation: pulse 1.8s infinite; }
         @keyframes pulse { 0% { opacity: 0.5; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0.5; transform: scale(0.95); } }
         .banner-subject { font-weight: 600; font-size: 0.95rem; line-height: 1.3; letter-spacing: 0.2px; word-break: break-word; }
-        .banner-hint { font-size: 0.7rem; opacity: 0.6; margin-left: 4px; }
         .status-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: #f1f5f9; padding: 6px 14px; border-radius: 40px; margin-bottom: 12px; font-size: 0.8rem; font-weight: 500; color: #1e293b; flex-wrap: wrap; }
         .status-bar .done-count { color: #1a4b8c; display: flex; align-items: center; gap: 4px; }
         .status-bar .done-count span { background: #b3d0ff; padding: 0 10px; border-radius: 20px; color: #0b2b5e; font-weight: 700; }
@@ -23,8 +21,7 @@
         .status-bar .remaining-count { color: #b91c1c; display: flex; align-items: center; gap: 4px; }
         .status-bar .remaining-count span { background: #fee9e7; padding: 0 10px; border-radius: 20px; color: #b91c1c; font-weight: 700; }
         .schedule-grid { display: flex; flex-direction: column; gap: 3px; margin-top: 4px; }
-        .row { display: flex; align-items: center; padding: 6px 10px; border-radius: 40px; background: #fafcff; border: 1px solid #e9edf3; transition: 0.1s ease; font-size: 0.82rem; gap: 4px; cursor: pointer; }
-        .row:hover { background: #f0f4ff; border-color: #b3d0ff; }
+        .row { display: flex; align-items: center; padding: 6px 10px; border-radius: 40px; background: #fafcff; border: 1px solid #e9edf3; transition: 0.1s ease; font-size: 0.82rem; gap: 4px; }
         .row .srno { font-weight: 600; color: #475569; min-width: 28px; font-size: 0.7rem; text-align: center; }
         .row .time { font-weight: 600; color: #1e293b; min-width: 62px; font-size: 0.7rem; letter-spacing: 0.2px; }
         .row .subject { flex: 1; font-weight: 500; color: #0b1e33; padding: 0 4px; font-size: 0.8rem; }
@@ -52,24 +49,15 @@
         .loading-text small { color: #94a3b8; font-size: 0.75rem; display: block; margin-top: 4px; }
         .error-text { text-align: center; padding: 20px; color: #b91c1c; font-size: 0.9rem; }
         .error-text small { color: #94a3b8; font-size: 0.75rem; display: block; margin-top: 4px; }
-        .details-panel { background: #f8fafc; border-radius: 16px; padding: 16px; margin-top: 12px; border: 1px solid #e2e8f0; display: none; }
-        .details-panel.active { display: block; }
-        .details-panel h4 { color: #0b1e33; margin-bottom: 10px; font-size: 0.9rem; }
-        .details-panel .detail-item { display: flex; padding: 4px 0; font-size: 0.8rem; border-bottom: 1px solid #eef2f6; }
-        .details-panel .detail-item .label { font-weight: 600; color: #475569; min-width: 100px; }
-        .details-panel .detail-item .value { color: #0b1e33; }
-        .details-panel .close-btn { float: right; background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer; padding: 0 4px; }
-        .details-panel .close-btn:hover { color: #475569; }
-        @media (max-width: 480px) { .card { padding: 12px 8px; } .banner { padding: 6px 14px; min-height: 40px; } .banner-subject { font-size: 0.8rem; } .row { padding: 5px 6px; font-size: 0.72rem; } .row .srno { min-width: 22px; font-size: 0.65rem; } .row .time { min-width: 52px; font-size: 0.65rem; } .row .duration-badge { font-size: 0.6rem; padding: 0 10px; } .row .subject { font-size: 0.7rem; } .status-bar { font-size: 0.7rem; padding: 4px 10px; gap: 4px; } .status-bar .remaining-time { font-size: 0.75rem; padding: 0 10px; } .footer { font-size: 0.6rem; flex-direction: column; align-items: stretch; gap: 4px; } .footer .exam-dates { justify-content: center; } .details-panel .detail-item .label { min-width: 70px; } }
+        @media (max-width: 480px) { .card { padding: 12px 8px; } .banner { padding: 6px 14px; min-height: 40px; } .banner-subject { font-size: 0.8rem; } .row { padding: 5px 6px; font-size: 0.72rem; } .row .srno { min-width: 22px; font-size: 0.65rem; } .row .time { min-width: 52px; font-size: 0.65rem; } .row .duration-badge { font-size: 0.6rem; padding: 0 10px; } .row .subject { font-size: 0.7rem; } .status-bar { font-size: 0.7rem; padding: 4px 10px; gap: 4px; } .status-bar .remaining-time { font-size: 0.75rem; padding: 0 10px; } .footer { font-size: 0.6rem; flex-direction: column; align-items: stretch; gap: 4px; } .footer .exam-dates { justify-content: center; } }
     </style>
 </head>
 <body>
 <div class="card">
-    <div class="banner" id="bannerClick">
+    <div class="banner">
         <div class="banner-activity">
             <span class="status-dot"></span>
             <span class="banner-subject" id="currentActivity">Loading schedule…</span>
-            <span class="banner-hint">👆 Click for details</span>
         </div>
     </div>
 
@@ -83,12 +71,6 @@
         <div class="loading-text">⏳ Loading from Google Sheet…<br><small>Please wait</small></div>
     </div>
 
-    <div class="details-panel" id="detailsPanel">
-        <button class="close-btn" onclick="closeDetails()">✕</button>
-        <h4 id="detailTitle">Activity Details</h4>
-        <div id="detailContent"></div>
-    </div>
-
     <div class="footer">
         <div class="exam-dates">
             <span class="mpt-date">📝 MPT: <span id="mptDateDisplay">--</span> <span class="count-days" id="mptDays">--</span>d</span>
@@ -99,31 +81,11 @@
 </div>
 
 <script>
-// CONFIGURATION - Your Google Sheet ID
-const SHEET_ID = '1snRQ9V8cBfl9lOa2rJ9K26jXqe5FSgUdc4gbKbAh3ZU';
-
-// Construct the published CSV URL
-// Note: You need to publish your sheet first via File > Share > Publish to web
-// Then replace the PUBLISHED_ID below with your actual published ID
-const PUBLISHED_ID = '2PACX-1vTX16x-Eeh1mguy6se1B25x0hkRIzIme4pX71KlxpML_vZAD34mtlITIqFs8MCAVycXFFft82j1RZDc';
-// If the above doesn't work, use this format after publishing:
-// const PUBLISHED_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/YOUR_PUBLISHED_ID/pub?output=csv';
-
-// For now, use the direct sheet export (may not work without publishing)
-const BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
-
-// Try both URLs - first try published, then fallback to export
-const SCHEDULE_URL = PUBLISHED_ID ? 
-    `https://docs.google.com/spreadsheets/d/e/${PUBLISHED_ID}/pub?output=csv` : 
-    BASE_URL;
-
-const DETAILS_URL = SCHEDULE_URL; // Same workbook, different sheet
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTX16x-Eeh1mguy6se1B25x0hkRIzIme4pX71KlxpML_vZAD34mtlITIqFs8MCAVycXFFft82j1RZDc/pub?output=csv';
 
 let schedule = [];
-let detailsData = {};
 let mptDate = null;
 let writtenDate = null;
-let currentActivityName = '';
 
 const $ = id => document.getElementById(id);
 const container = $('scheduleContainer');
@@ -137,9 +99,6 @@ const mptDays = $('mptDays');
 const writtenDays = $('writtenDays');
 const mptDateDisplay = $('mptDateDisplay');
 const writtenDateDisplay = $('writtenDateDisplay');
-const detailsPanel = $('detailsPanel');
-const detailTitle = $('detailTitle');
-const detailContent = $('detailContent');
 
 function getPakistanTime() {
     const now = new Date();
@@ -170,16 +129,13 @@ function getDaysUntil(target, now) {
     return Math.max(0, Math.ceil((t - n) / (1000 * 60 * 60 * 24)));
 }
 
-// Parse main schedule sheet - Column A is Activity Name
-function parseScheduleCSV(text) {
+function parseCSV(text) {
     const lines = text.split('\n').filter(l => l.trim());
     if (lines.length < 2) return null;
     
     const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-    
-    // Find columns: A=subject/activity, B=from, C=to, D=duration, E=type
     const idx = {
-        subject: 0, // Column A
+        subject: headers.findIndex(h => h.includes('activity') || h.includes('subject')),
         from: headers.findIndex(h => h === 'from' || h === 'start'),
         to: headers.findIndex(h => h === 'to' || h === 'end'),
         duration: headers.findIndex(h => h === 'duration' || h === 'time'),
@@ -188,11 +144,6 @@ function parseScheduleCSV(text) {
         written: headers.findIndex(h => h.includes('written') || h.includes('exam'))
     };
 
-    // If headers not found, use column positions (A=0, B=1, C=2, D=3)
-    if (idx.from === -1) idx.from = 1;
-    if (idx.to === -1) idx.to = 2;
-    if (idx.duration === -1) idx.duration = 3;
-
     const data = [];
     let mptStr = null, writtenStr = null;
 
@@ -200,10 +151,10 @@ function parseScheduleCSV(text) {
         const cols = lines[i].split(',').map(c => c.trim());
         if (cols.length < 4 || cols.every(c => !c)) continue;
 
-        const subject = cols[idx.subject] || '';
-        let from = (idx.from >= 0 && idx.from < cols.length ? cols[idx.from] : '').replace(/\s/g, '');
-        let to = (idx.to >= 0 && idx.to < cols.length ? cols[idx.to] : '').replace(/\s/g, '');
-        let duration = (idx.duration >= 0 && idx.duration < cols.length ? cols[idx.duration] : '').replace(/\s/g, '');
+        const subject = idx.subject >= 0 ? cols[idx.subject] : cols[0] || '';
+        let from = (idx.from >= 0 ? cols[idx.from] : cols[1] || '').replace(/\s/g, '');
+        let to = (idx.to >= 0 ? cols[idx.to] : cols[2] || '').replace(/\s/g, '');
+        let duration = (idx.duration >= 0 ? cols[idx.duration] : cols[3] || '').replace(/\s/g, '');
 
         if (idx.mpt >= 0 && cols[idx.mpt]?.match(/\d{1,2}\s+[A-Za-z]{3}\s+\d{4}/)) mptStr = cols[idx.mpt];
         if (idx.written >= 0 && cols[idx.written]?.match(/\d{1,2}\s+[A-Za-z]{3}\s+\d{4}/)) writtenStr = cols[idx.written];
@@ -241,73 +192,19 @@ function parseScheduleCSV(text) {
     return data.length ? data : null;
 }
 
-// Parse details sheet - Column B is Activity Name (lookup key)
-function parseDetailsCSV(text) {
-    const lines = text.split('\n').filter(l => l.trim());
-    if (lines.length < 2) return;
-    
-    const headers = lines[0].split(',').map(h => h.trim());
-    
-    // Column B is Activity Name (index 1)
-    const activityNameIdx = 1;
-    
-    // Build details data using Column B as the key
-    for (let i = 1; i < lines.length; i++) {
-        const cols = lines[i].split(',').map(c => c.trim());
-        if (cols.length < 2 || cols.every(c => !c)) continue;
-        
-        const key = cols[activityNameIdx] || '';
-        if (!key) continue;
-        
-        detailsData[key] = {};
-        for (let j = 0; j < headers.length; j++) {
-            if (j !== activityNameIdx && cols[j]) {
-                const label = headers[j] || `Column ${j}`;
-                detailsData[key][label] = cols[j];
-            }
-        }
-    }
-    
-    console.log('📋 Loaded details for', Object.keys(detailsData).length, 'activities');
-}
-
-// Fetch and parse CSV with sheet detection
-async function fetchSheetData(url) {
-    try {
-        const res = await fetch(url, { cache: 'no-store' });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return await res.text();
-    } catch (e) {
-        console.error('Fetch error:', e);
-        return null;
-    }
-}
-
 async function loadSchedule() {
     try {
-        // Try published URL first
-        let csvText = await fetchSheetData(SCHEDULE_URL);
-        
-        // If that fails, try export URL
-        if (!csvText) {
-            console.log('⚠️ Published URL failed, trying export URL...');
-            csvText = await fetchSheetData(BASE_URL);
+        const res = await fetch(SHEET_URL, { cache: 'no-store' });
+        if (!res.ok) throw new Error('Failed to fetch');
+        const csv = await res.text();
+        const parsed = parseCSV(csv);
+        if (parsed && parsed.length) {
+            schedule = parsed;
+            return true;
         }
-        
-        if (!csvText) throw new Error('Could not fetch data');
-        
-        // Parse the CSV - it contains all sheets
-        const parsed = parseScheduleCSV(csvText);
-        if (!parsed || !parsed.length) throw new Error('No schedule data found');
-        schedule = parsed;
-
-        // Parse details from the same CSV
-        parseDetailsCSV(csvText);
-
-        return true;
+        return false;
     } catch (e) {
         console.error('Error:', e);
-        container.innerHTML = `<div class="error-text">❌ ${e.message}<br><small>Please publish your sheet: File → Share → Publish to web → CSV</small></div>`;
         return false;
     }
 }
@@ -349,29 +246,6 @@ function getCurrent(now) {
     return { idx: Math.max(0, idx), remain };
 }
 
-function showDetails(activityName) {
-    const cleanName = activityName.trim();
-    const details = detailsData[cleanName];
-    
-    if (!details || Object.keys(details).length === 0) {
-        detailContent.innerHTML = `<p style="color: #94a3b8; font-size: 0.85rem;">No additional details available for "${cleanName}"</p>`;
-    } else {
-        let html = '';
-        for (const [key, value] of Object.entries(details)) {
-            if (value && value.trim()) {
-                html += `<div class="detail-item"><span class="label">${key}:</span><span class="value">${value}</span></div>`;
-            }
-        }
-        detailContent.innerHTML = html || '<p style="color: #94a3b8; font-size: 0.85rem;">No additional details available.</p>';
-    }
-    detailTitle.textContent = `📋 ${cleanName}`;
-    detailsPanel.classList.add('active');
-}
-
-function closeDetails() {
-    detailsPanel.classList.remove('active');
-}
-
 function render() {
     const now = getPakistanTime();
     pkTime.textContent = formatFullDateTime(now);
@@ -381,7 +255,6 @@ function render() {
 
     const { idx, remain } = getCurrent(now);
     const item = schedule[idx] || { subject: 'No schedule', type: '' };
-    currentActivityName = item.subject;
 
     const prefix = { core: '📘 ', compulsory: '📖 ', optional: '📚 ', mpt: '📝 ', review: '📋 ' };
     let activity = item.subject;
@@ -406,12 +279,10 @@ function render() {
         if (isBreak) cls += ' break-row';
 
         const emoji = { core: ' ✏️', compulsory: ' 📖', optional: ' 📚', mpt: ' 📝', review: ' 📘', break: '', sleep: ' 🌙' };
-        const hasDetails = detailsData[s.subject] && Object.keys(detailsData[s.subject]).length > 0;
-        const escapedSubject = s.subject.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-        html += `<div class="${cls}" onclick="showDetails('${escapedSubject}')" title="${hasDetails ? 'Click for details' : ''}">
+        html += `<div class="${cls}">
             <span class="srno">${i + 1}</span>
             <span class="time">${s.from} – ${s.to}</span>
-            <span class="subject">${s.subject}${emoji[s.type] || ''}${hasDetails ? ' 📋' : ''}</span>
+            <span class="subject">${s.subject}${emoji[s.type] || ''}</span>
             <span class="duration-badge">${s.duration}</span>
         </div>`;
     }
@@ -421,19 +292,14 @@ function render() {
     remainingCount.textContent = left;
 }
 
-// Click banner to show current activity details
-document.getElementById('bannerClick').addEventListener('click', function() {
-    if (currentActivityName) {
-        showDetails(currentActivityName);
-    }
-});
-
 async function init() {
     const loaded = await loadSchedule();
-    if (loaded && schedule.length) {
-        render();
-        setInterval(render, 1000);
+    if (!loaded) {
+        container.innerHTML = '<div class="error-text">❌ Failed to load schedule<br><small>Please check your internet connection and try refreshing</small></div>';
+        return;
     }
+    render();
+    setInterval(render, 1000);
 }
 
 document.addEventListener('DOMContentLoaded', init);
