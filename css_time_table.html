@@ -80,18 +80,14 @@
         .priority-high { background: #fee2e2; color: #dc2626; }
         .priority-medium { background: #fef3c7; color: #d97706; }
         .priority-low { background: #d1fae5; color: #059669; }
-        
-        /* Agenda Items */
-        .modal-body .agenda-item { background: #f8fafc; padding: 12px 14px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid #3b82f6; }
-        .modal-body .agenda-item .agenda-date { font-size: 0.7rem; color: #64748b; margin-bottom: 6px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        .modal-body .agenda-item { background: #f8fafc; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; border-left: 3px solid #3b82f6; }
+        .modal-body .agenda-item .agenda-date { font-size: 0.7rem; color: #64748b; margin-bottom: 4px; }
         .modal-body .agenda-item .agenda-text { font-size: 0.9rem; color: #1e293b; }
-        .modal-body .agenda-item .agenda-text .agenda-line { padding: 2px 0; }
-        .modal-body .agenda-item .agenda-remarks { font-size: 0.8rem; color: #64748b; margin-top: 6px; font-style: italic; }
-        .modal-body .agenda-item .agenda-link { font-size: 0.8rem; margin-top: 6px; }
-        .modal-body .agenda-item .agenda-link a { color: #3b82f6; text-decoration: none; word-break: break-all; }
+        .modal-body .agenda-item .agenda-priority { float: right; }
+        .modal-body .agenda-item .agenda-remarks { font-size: 0.8rem; color: #64748b; margin-top: 4px; font-style: italic; }
+        .modal-body .agenda-item .agenda-link { font-size: 0.8rem; margin-top: 4px; }
+        .modal-body .agenda-item .agenda-link a { color: #3b82f6; text-decoration: none; }
         .modal-body .agenda-item .agenda-link a:hover { text-decoration: underline; }
-        .modal-body .agenda-item .agenda-todo { font-size: 0.75rem; color: #059669; font-weight: 600; }
-        .modal-body .no-records { text-align: center; padding: 20px; color: #94a3b8; }
 
         @media (max-width: 480px) { 
             .card { padding: 12px 8px; } 
@@ -109,7 +105,7 @@
             .footer .exam-dates { justify-content: center; } 
             .modal { padding: 16px; margin: 10px; }
             .modal-body .time-details { grid-template-columns: 1fr; }
-            .modal-body .agenda-item { padding: 10px 12px; }
+            .modal-body .agenda-item { padding: 8px 10px; }
         }
     </style>
 </head>
@@ -159,9 +155,11 @@
                 <span>📊 Duration: <strong id="modalDuration">--</strong></span>
             </div>
             <div class="detail-section">
-                <h4>📋 All Records <span style="font-weight:normal;font-size:0.7rem;color:#94a3b8;">(Newest first)</span></h4>
+                <h4>📋 Activity Agenda <span style="font-weight:normal;font-size:0.7rem;color:#94a3b8;">(Newest first)</span></h4>
                 <div id="modalAgendaList">
-                    <div class="no-records">Loading records...</div>
+                    <div class="agenda-item">
+                        <div class="agenda-text">No agenda available</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -183,7 +181,7 @@
             { from: "15:00", to: "16:00", duration: "1h", subject: "Optional 3 (History of USA)", type: "optional" },
             { from: "16:00", to: "17:00", duration: "1h", subject: "Optional 4 (Criminology)", type: "optional" },
             { from: "17:00", to: "18:00", duration: "1h", subject: "Optional 5 (Gender studies)", type: "optional" },
-            { from: "18:00", to: "19:00", duration: "1h", subject: "Optional 1 (Computer Science) or English Grammer", type: "optional" },
+            { from: "18:00", to: "19:00", duration: "1h", subject: "Optional 1 (Computer Science) or English Grammar", type: "optional" },
             { from: "19:00", to: "20:00", duration: "1h", subject: "☕ Break · Dinner & Isha", type: "break" },
             { from: "20:00", to: "22:00", duration: "2h", subject: "MPT Practice Test (MCQs)", type: "mpt" },
             { from: "22:00", to: "23:00", duration: "1h", subject: "Review · Notes", type: "review" },
@@ -228,6 +226,28 @@
         const modalTo = document.getElementById('modalTo');
         const modalDuration = document.getElementById('modalDuration');
         const modalAgendaList = document.getElementById('modalAgendaList');
+
+        // ----- FALLBACK DETAILS (for testing when sheet is not available) -----
+        const FALLBACK_DETAILS = {
+            "English Essay & Précis and Reading": [
+                { timestamp: "2026-08-29 10:00:00", activityName: "English Essay & Précis and Reading", agenda: "1. Essay Structure: Introduction, Body, Conclusion\n2. Précis Practice - Passage 1\n3. Vocabulary Building - 50 new words", dateTodo: "2026-08-30", refLink: "https://drive.google.com/css-essay-guide", remarks: "Focus on writing strong thesis statements", priority: "High" },
+                { timestamp: "2026-08-30 10:00:00", activityName: "English Essay & Précis and Reading", agenda: "1. Body Paragraph Development\n2. Précis Practice - Passage 2\n3. Vocabulary Review & Usage", dateTodo: "2026-08-31", refLink: "https://drive.google.com/css-essay-guide", remarks: "Work on logical flow of arguments", priority: "High" }
+            ],
+            "Pakistan Affairs": [
+                { timestamp: "2026-08-29 10:00:00", activityName: "Pakistan Affairs", agenda: "1. Pakistan Movement Timeline (1857-1947)\n2. Constitutional Amendments: 1st to 18th\n3. Current Affairs: Pakistan Politics", dateTodo: "2026-08-30", refLink: "https://drive.google.com/pakistan-affairs", remarks: "Focus on 1973 Constitution & 18th Amendment", priority: "High" },
+                { timestamp: "2026-08-30 10:00:00", activityName: "Pakistan Affairs", agenda: "1. Economic Development & 5-Year Plans\n2. Social Issues: Education & Health\n3. Pakistan's Role in UN & OIC", dateTodo: "2026-08-31", refLink: "https://drive.google.com/pakistan-affairs", remarks: "Connect historical events with current situation", priority: "High" }
+            ],
+            "Current Affairs": [
+                { timestamp: "2026-08-29 10:00:00", activityName: "Current Affairs", agenda: "1. International Relations: US-China Relations\n2. Global Economy: Inflation & Trade\n3. Technology News: AI & Cybersecurity", dateTodo: "2026-08-30", refLink: "https://drive.google.com/current-affairs", remarks: "Read Dawn & BBC News daily", priority: "High" }
+            ],
+            "MPT Practice Test (MCQs)": [
+                { timestamp: "2026-08-29 10:00:00", activityName: "MPT Practice Test (MCQs)", agenda: "1. Full MPT Mock Test - 200 MCQs\n2. Time Management: 3 Hours\n3. Answer Analysis & Review", dateTodo: "2026-08-30", refLink: "https://drive.google.com/mpt-papers", remarks: "Focus on time management", priority: "High" },
+                { timestamp: "2026-08-30 10:00:00", activityName: "MPT Practice Test (MCQs)", agenda: "1. Subject-wise MCQs: Pakistan Affairs\n2. Subject-wise MCQs: Current Affairs\n3. Subject-wise MCQs: Islamic Studies", dateTodo: "2026-08-31", refLink: "https://drive.google.com/mpt-papers", remarks: "Target: 80% accuracy", priority: "High" }
+            ],
+            "Review · Notes": [
+                { timestamp: "2026-08-29 10:00:00", activityName: "Review · Notes", agenda: "1. Daily Learning Review\n2. Notes Organization & Summary\n3. Connect Topics Across Subjects", dateTodo: "2026-08-30", refLink: "https://drive.google.com/note-templates", remarks: "Use active recall method", priority: "Medium" }
+            ]
+        };
 
         // ----- Parse CSV (Schedule) -----
         function parseCSVToSchedule(csvText) {
@@ -293,7 +313,7 @@
             return parsed.length > 0 ? parsed : null;
         }
 
-        // ----- Parse CSV (Activity Details) -----
+        // ----- Parse CSV (Activity Details) with better matching -----
         function parseCSVToDetails(csvText) {
             const lines = csvText.split('\n').filter(line => line.trim() !== '');
             if (lines.length < 2) return {};
@@ -316,26 +336,26 @@
                 if (cols.every(c => c === '')) continue;
 
                 let activityName = activityIdx !== -1 ? cols[activityIdx] : cols[0] || '';
-                // Clean activity name for matching
-                activityName = activityName.replace(/[☕🌙📚📖✏️📝📘📋]/g, '').trim();
-                
                 if (!activityName) continue;
 
-                if (!detailsMap[activityName]) {
-                    detailsMap[activityName] = [];
+                // Clean activity name for better matching
+                const cleanName = activityName.replace(/[☕🌙📚📖✏️📝📘📋]/g, '').trim();
+                
+                if (!detailsMap[cleanName]) {
+                    detailsMap[cleanName] = [];
                 }
 
                 const detail = {
                     timestamp: timestampIdx !== -1 ? cols[timestampIdx] : '',
-                    activityName: activityName,
-                    agenda: agendaIdx !== -1 ? cols[agendaIdx].replace(/\\n/g, '\n').replace(/\n/g, '<br>') : '',
+                    activityName: cleanName,
+                    agenda: agendaIdx !== -1 ? cols[agendaIdx].replace(/\\n/g, '\n') : '',
                     dateTodo: dateTodoIdx !== -1 ? cols[dateTodoIdx] : '',
                     refLink: refLinkIdx !== -1 ? cols[refLinkIdx] : '',
                     remarks: remarksIdx !== -1 ? cols[remarksIdx] : '',
                     priority: priorityIdx !== -1 ? cols[priorityIdx] : ''
                 };
 
-                detailsMap[activityName].push(detail);
+                detailsMap[cleanName].push(detail);
             }
 
             // Sort each activity's details by timestamp (newest first)
@@ -390,13 +410,52 @@
                 if (Object.keys(parsed).length > 0) {
                     activityDetailsCache = parsed;
                     detailsLoaded = true;
+                    console.log('✅ Loaded details for', Object.keys(parsed).length, 'activities');
                     return true;
                 }
                 return false;
             } catch (error) {
                 console.error('Error loading activity details:', error);
-                return false;
+                // Use fallback details
+                activityDetailsCache = FALLBACK_DETAILS;
+                detailsLoaded = true;
+                console.log('📋 Using fallback details');
+                return true;
             }
+        }
+
+        // ----- Get details for an activity (with fuzzy matching) -----
+        function getDetailsForActivity(activityName) {
+            // Clean the activity name
+            const cleanName = activityName.replace(/[☕🌙📚📖✏️📝📘📋]/g, '').trim();
+            
+            // Try exact match first
+            if (activityDetailsCache[cleanName]) {
+                return activityDetailsCache[cleanName];
+            }
+            
+            // Try with the original name
+            if (activityDetailsCache[activityName]) {
+                return activityDetailsCache[activityName];
+            }
+            
+            // Try partial match
+            for (const key in activityDetailsCache) {
+                if (cleanName.includes(key) || key.includes(cleanName)) {
+                    return activityDetailsCache[key];
+                }
+            }
+            
+            // Check if it's a break or sleep
+            if (cleanName.toLowerCase().includes('break') || cleanName.toLowerCase().includes('lunch') || 
+                cleanName.toLowerCase().includes('dinner') || cleanName.toLowerCase().includes('sleep') ||
+                cleanName.toLowerCase().includes('night rest')) {
+                // Return empty array for breaks/sleep
+                return [];
+            }
+            
+            // Return empty array if no match
+            return [];
         }
 
         // ----- Pakistan Time -----
@@ -492,12 +551,12 @@
             return { currentIdx, remainingSeconds };
         }
 
-        // ----- Show modal with ALL activity details -----
+        // ----- Show modal with activity details -----
         function showModal(activityName, from, to, duration) {
             const cleanName = activityName.replace(/[☕🌙📚📖✏️📝📘📋]/g, '').trim();
             
-            // Get ALL details from cache
-            const details = activityDetailsCache[cleanName] || activityDetailsCache[activityName] || [];
+            // Get details using improved matching
+            const details = getDetailsForActivity(activityName);
             
             // Set basic info
             modalIcon.textContent = getIconForActivity(cleanName);
@@ -508,10 +567,10 @@
             modalTo.textContent = to;
             modalDuration.textContent = duration;
 
-            // Build agenda list - ALL records displayed
+            // Build agenda list (already sorted by timestamp descending)
             if (details.length > 0) {
                 let html = '';
-                details.forEach((detail, index) => {
+                details.forEach((detail) => {
                     const priority = detail.priority || '';
                     let priorityBadge = '';
                     if (priority) {
@@ -522,11 +581,8 @@
                         priorityBadge = `<span class="priority-badge ${badgeClass}">${priority}</span>`;
                     }
 
-                    // Parse agenda items
-                    const agendaItems = detail.agenda ? detail.agenda.split('<br>').filter(item => item.trim()) : [];
-                    const agendaText = agendaItems.length > 0 ? 
-                        agendaItems.map(item => `<div class="agenda-line">• ${item.trim()}</div>`).join('') : 
-                        '<div class="agenda-line" style="color:#94a3b8;">No agenda items</div>';
+                    const agendaItems = detail.agenda ? detail.agenda.split('\n').filter(item => item.trim()) : [];
+                    const agendaText = agendaItems.length > 0 ? agendaItems.map(item => `<div>• ${item.trim()}</div>`).join('') : 'No agenda items';
 
                     html += `
                         <div class="agenda-item">
@@ -544,9 +600,8 @@
                 modalAgendaList.innerHTML = html;
             } else {
                 modalAgendaList.innerHTML = `
-                    <div class="no-records">
-                        📭 No agenda records found for this activity<br>
-                        <small style="color:#94a3b8;">Add records in the "Activity Details" sheet</small>
+                    <div class="agenda-item">
+                        <div class="agenda-text">No agenda records found for this activity</div>
                     </div>
                 `;
             }
@@ -568,7 +623,6 @@
                 'History of USA': '🇺🇸',
                 'Criminology': '⚖️',
                 'Gender studies': '👩‍⚖️',
-                'English Grammer': '📝',
                 'English Grammar': '📝',
                 'MPT Practice': '📝',
                 'Review': '📘',
@@ -636,9 +690,9 @@
                 const typeEmoji = { 'core': ' ✏️', 'compulsory': ' 📖', 'optional': ' 📚', 'mpt': ' 📝', 'review': ' 📘', 'break': '', 'sleep': ' 🌙' };
                 subjectDisplay += typeEmoji[s.type] || '';
 
-                // Get record count for this activity
-                const cleanName = s.subject.replace(/[☕🌙📚📖✏️📝📘📋]/g, '').trim();
-                const recordCount = (activityDetailsCache[cleanName] || activityDetailsCache[s.subject] || []).length;
+                // Get record count using improved matching
+                const details = getDetailsForActivity(s.subject);
+                const recordCount = details.length;
                 const countBadge = recordCount > 0 ? `<span class="record-count">${recordCount} 📋</span>` : '';
 
                 html += `<div class="${rowClass}" data-subject="${s.subject}" data-from="${s.from}" data-to="${s.to}" data-duration="${s.duration}">
@@ -699,19 +753,10 @@
             // Load schedule
             const scheduleLoaded = await loadScheduleFromSheet();
             
-            // Load activity details in background
-            loadActivityDetails().then(success => {
-                if (success) {
-                    console.log('✅ Activity details loaded');
-                } else {
-                    console.log('⚠️ Using fallback details');
-                }
-                // Re-render to show record counts
-                const nowPK = getPakistanTime();
-                const { currentIdx } = getCurrentIndexAndRemaining(nowPK);
-                renderSchedule(currentIdx);
-            });
-
+            // Load activity details
+            await loadActivityDetails();
+            
+            // Update UI
             if (!scheduleLoaded) {
                 container.innerHTML = '<div class="loading-text">⚠️ Using fallback schedule<br><small>Click any activity for details</small></div>';
             } else {
