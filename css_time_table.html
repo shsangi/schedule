@@ -52,7 +52,6 @@
         .loading-text small { color: #94a3b8; font-size: 0.75rem; display: block; margin-top: 4px; }
         .cache-badge { background: #dbeafe; padding: 2px 10px; border-radius: 20px; font-size: 0.6rem; color: #1a4b8c; margin-left: 8px; }
 
-        /* Modal/Popup Styles */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000; display: none; justify-content: center; align-items: center; padding: 20px; animation: fadeIn 0.3s ease; }
         .modal-overlay.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
@@ -198,10 +197,7 @@
 
         // ----- GOOGLE SHEET URLS -----
         // REPLACE THESE WITH YOUR PUBLISHED CSV URLs
-        // Sheet 1: "CSS 2027 - 16-Hour Daily Schedule"
         const SCHEDULE_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTX16x-Eeh1mguy6se1B25x0hkRIzIme4pX71KlxpML_vZAD34mtlITIqFs8MCAVycXFFft82j1RZDc/pub?output=csv';
-        
-        // Sheet 2: "Details of activity"
         const DETAILS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTX16x-Eeh1mguy6se1B25x0hkRIzIme4pX71KlxpML_vZAD34mtlITIqFs8MCAVycXFFft82j1RZDc/pub?output=csv';
 
         // ----- DOM refs -----
@@ -230,7 +226,7 @@
         const modalDuration = document.getElementById('modalDuration');
         const modalAgendaList = document.getElementById('modalAgendaList');
 
-        // ----- FALLBACK DETAILS WITH PROPER AGENDA -----
+        // ----- HARDCODED FALLBACK DETAILS WITH AGENDA -----
         const FALLBACK_DETAILS = {
             "Pakistan Affairs": [
                 { 
@@ -250,14 +246,25 @@
                     refLink: "https://drive.google.com/pakistan-affairs", 
                     remarks: "Connect historical events with current situation", 
                     priority: "High" 
+                }
+            ],
+            "Current Affairs": [
+                { 
+                    timestamp: "2026-08-29 10:00:00", 
+                    activityName: "Current Affairs", 
+                    agenda: "1. International Relations: US-China Relations\n2. Global Economy: Inflation & Trade\n3. Technology News: AI & Cybersecurity\n4. Environmental Issues: COP28", 
+                    dateTodo: "2026-08-30", 
+                    refLink: "https://drive.google.com/current-affairs", 
+                    remarks: "Read Dawn & BBC News daily", 
+                    priority: "High" 
                 },
                 { 
-                    timestamp: "2026-08-31 10:00:00", 
-                    activityName: "Pakistan Affairs", 
-                    agenda: "1. Kashmir Issue: Historical Perspective\n2. Water Crisis & Indus Water Treaty\n3. National Security Challenges\n4. Review of Past CSS Pakistan Affairs MCQs", 
-                    dateTodo: "2026-09-01", 
-                    refLink: "https://drive.google.com/pakistan-affairs", 
-                    remarks: "Understand Pakistan's geopolitical position", 
+                    timestamp: "2026-08-30 10:00:00", 
+                    activityName: "Current Affairs", 
+                    agenda: "1. Middle East Politics: Israel-Palestine\n2. Ukraine-Russia War: Latest Updates\n3. CPEC & China-Pakistan Relations\n4. Global Health: Pandemics & Vaccines", 
+                    dateTodo: "2026-08-31", 
+                    refLink: "https://drive.google.com/current-affairs", 
+                    remarks: "Focus on Pakistan's foreign policy implications", 
                     priority: "High" 
                 }
             ],
@@ -281,17 +288,6 @@
                     priority: "High" 
                 }
             ],
-            "Current Affairs": [
-                { 
-                    timestamp: "2026-08-29 10:00:00", 
-                    activityName: "Current Affairs", 
-                    agenda: "1. International Relations: US-China Relations\n2. Global Economy: Inflation & Trade\n3. Technology News: AI & Cybersecurity\n4. Environmental Issues: COP28", 
-                    dateTodo: "2026-08-30", 
-                    refLink: "https://drive.google.com/current-affairs", 
-                    remarks: "Read Dawn & BBC News daily", 
-                    priority: "High" 
-                }
-            ],
             "MPT Practice Test (MCQs)": [
                 { 
                     timestamp: "2026-08-29 10:00:00", 
@@ -309,6 +305,28 @@
                     dateTodo: "2026-08-31", 
                     refLink: "https://drive.google.com/mpt-papers", 
                     remarks: "Target: 80% accuracy", 
+                    priority: "High" 
+                }
+            ],
+            "GSA (General Science & Ability)": [
+                { 
+                    timestamp: "2026-08-29 10:00:00", 
+                    activityName: "GSA (General Science & Ability)", 
+                    agenda: "1. Biology: Human Body Systems\n2. Chemistry: Periodic Table & Elements\n3. Physics: Mechanics Basics\n4. Mental Math: 50 MCQs Practice", 
+                    dateTodo: "2026-08-30", 
+                    refLink: "https://drive.google.com/gsa-notes", 
+                    remarks: "Focus on environmental science concepts", 
+                    priority: "High" 
+                }
+            ],
+            "Islamic Studies": [
+                { 
+                    timestamp: "2026-08-29 10:00:00", 
+                    activityName: "Islamic Studies", 
+                    agenda: "1. Surah Studies: Last 10 Surahs\n2. Life of Prophet Muhammad (PBUH)\n3. Islamic Jurisprudence & Fiqh\n4. Pillars of Islam & Faith", 
+                    dateTodo: "2026-08-30", 
+                    refLink: "https://drive.google.com/islamic-studies", 
+                    remarks: "Memorize key Hadiths related to governance", 
                     priority: "High" 
                 }
             ]
@@ -381,12 +399,12 @@
         // ----- Parse CSV (Activity Details) -----
         function parseCSVToDetails(csvText) {
             const lines = csvText.split('\n').filter(line => line.trim() !== '');
-            if (lines.length < 2) return {};
+            if (lines.length < 2) return null;
 
-            console.log('📄 First 3 lines of CSV:', lines.slice(0, 3));
+            console.log('📄 CSV First 3 lines:', lines.slice(0, 3));
 
             const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-            console.log('📋 Headers found:', headers);
+            console.log('📋 Headers:', headers);
             
             const timestampIdx = headers.findIndex(h => h.includes('timestamp'));
             const activityIdx = headers.findIndex(h => h.includes('activity name') || h.includes('activity'));
@@ -398,6 +416,11 @@
 
             console.log('📌 Column indices:', { timestampIdx, activityIdx, agendaIdx, dateTodoIdx, refLinkIdx, remarksIdx, priorityIdx });
 
+            if (activityIdx === -1) {
+                console.error('❌ "Activity Name" column not found in CSV!');
+                return null;
+            }
+
             const detailsMap = {};
 
             for (let i = 1; i < lines.length; i++) {
@@ -405,7 +428,7 @@
                 if (cols.length < 2) continue;
                 if (cols.every(c => c === '')) continue;
 
-                let activityName = activityIdx !== -1 ? cols[activityIdx] : cols[0] || '';
+                let activityName = activityIdx !== -1 ? cols[activityIdx] : '';
                 if (!activityName) continue;
 
                 // Clean activity name
@@ -415,7 +438,6 @@
                     detailsMap[cleanName] = [];
                 }
 
-                // Get agenda and handle line breaks
                 let agenda = '';
                 if (agendaIdx !== -1 && cols.length > agendaIdx) {
                     agenda = cols[agendaIdx];
@@ -437,14 +459,14 @@
                 detailsMap[cleanName].push(detail);
             }
 
-            // Sort each activity's details by timestamp (newest first)
+            // Sort by timestamp (newest first)
             for (const key in detailsMap) {
                 detailsMap[key].sort((a, b) => {
                     return new Date(b.timestamp) - new Date(a.timestamp);
                 });
             }
 
-            console.log('✅ Parsed details map:', Object.keys(detailsMap));
+            console.log('✅ Parsed details map keys:', Object.keys(detailsMap));
             return detailsMap;
         }
 
@@ -462,7 +484,7 @@
             return new Date(year, month, day);
         }
 
-        // ----- Fetch schedule from "CSS 2027 - 16-Hour Daily Schedule" -----
+        // ----- Fetch schedule -----
         async function loadScheduleFromSheet() {
             try {
                 console.log('📡 Fetching schedule from:', SCHEDULE_CSV_URL);
@@ -482,7 +504,7 @@
             }
         }
 
-        // ----- Fetch activity details from "Details of activity" -----
+        // ----- Fetch activity details -----
         async function loadActivityDetails() {
             try {
                 console.log('📡 Fetching details from:', DETAILS_CSV_URL);
@@ -490,53 +512,70 @@
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const csvText = await response.text();
                 console.log('📄 CSV length:', csvText.length);
+                
                 const parsed = parseCSVToDetails(csvText);
-                if (Object.keys(parsed).length > 0) {
+                if (parsed && Object.keys(parsed).length > 0) {
                     activityDetailsCache = parsed;
                     detailsLoaded = true;
                     console.log('✅ Loaded details for', Object.keys(parsed).length, 'activities');
-                    console.log('📊 Details cache:', activityDetailsCache);
+                    console.log('📊 Details keys:', Object.keys(activityDetailsCache));
                     return true;
                 }
                 return false;
             } catch (error) {
-                console.error('Error loading activity details:', error);
-                // Use fallback details
-                activityDetailsCache = FALLBACK_DETAILS;
-                detailsLoaded = true;
-                console.log('📋 Using fallback details with', Object.keys(FALLBACK_DETAILS).length, 'activities');
-                return true;
+                console.error('❌ Error loading activity details:', error);
+                return false;
             }
         }
 
-        // ----- Get details for an activity -----
+        // ----- Get details for an activity with improved matching -----
         function getDetailsForActivity(activityName) {
+            // Clean the activity name
             const cleanName = activityName.replace(/[☕🌙📚📖✏️📝📘📋]/g, '').trim();
             
             console.log(`🔍 Looking for details for: "${cleanName}"`);
             console.log('📚 Available in cache:', Object.keys(activityDetailsCache));
             
-            // Try exact match first
-            if (activityDetailsCache[cleanName]) {
-                console.log(`✅ Found exact match for "${cleanName}"`);
-                return activityDetailsCache[cleanName];
+            // If we have cached data, try to find matches
+            if (detailsLoaded && Object.keys(activityDetailsCache).length > 0) {
+                // Try exact match
+                if (activityDetailsCache[cleanName]) {
+                    console.log(`✅ Found exact match for "${cleanName}"`);
+                    return activityDetailsCache[cleanName];
+                }
+                
+                // Try with original name
+                if (activityDetailsCache[activityName]) {
+                    console.log(`✅ Found match with original name "${activityName}"`);
+                    return activityDetailsCache[activityName];
+                }
+                
+                // Try partial match
+                for (const key in activityDetailsCache) {
+                    if (cleanName.includes(key) || key.includes(cleanName)) {
+                        console.log(`✅ Found partial match: "${key}" for "${cleanName}"`);
+                        return activityDetailsCache[key];
+                    }
+                }
+                
+                console.log(`❌ No details found in cache for "${cleanName}"`);
             }
             
-            // Try with the original name
-            if (activityDetailsCache[activityName]) {
-                console.log(`✅ Found match with original name "${activityName}"`);
-                return activityDetailsCache[activityName];
+            // If no cache data or no match, use fallback
+            console.log('📋 Using fallback details for:', cleanName);
+            if (FALLBACK_DETAILS[cleanName]) {
+                return FALLBACK_DETAILS[cleanName];
             }
             
-            // Try partial match
-            for (const key in activityDetailsCache) {
+            // Try fallback with partial match
+            for (const key in FALLBACK_DETAILS) {
                 if (cleanName.includes(key) || key.includes(cleanName)) {
-                    console.log(`✅ Found partial match: "${key}" for "${cleanName}"`);
-                    return activityDetailsCache[key];
+                    console.log(`✅ Found fallback match: "${key}" for "${cleanName}"`);
+                    return FALLBACK_DETAILS[key];
                 }
             }
             
-            console.log(`❌ No details found for "${cleanName}"`);
+            console.log(`❌ No fallback details found for "${cleanName}"`);
             return [];
         }
 
@@ -827,12 +866,18 @@
 
         // ----- Init -----
         async function init() {
-            container.innerHTML = '<div class="loading-text">⏳ Loading schedule from "CSS 2027 - 16-Hour Daily Schedule"…</div>';
+            container.innerHTML = '<div class="loading-text">⏳ Loading schedule…</div>';
             
             const scheduleLoaded = await loadScheduleFromSheet();
-            
-            container.innerHTML = '<div class="loading-text">⏳ Loading activity details from "Details of activity"…</div>';
             await loadActivityDetails();
+            
+            // Always use the details cache (either from sheet or empty)
+            // If sheet failed, use fallback
+            if (!detailsLoaded || Object.keys(activityDetailsCache).length === 0) {
+                console.log('📋 Using fallback details because sheet not loaded');
+                activityDetailsCache = FALLBACK_DETAILS;
+                detailsLoaded = true;
+            }
             
             if (!scheduleLoaded) {
                 container.innerHTML = '<div class="loading-text">⚠️ Using fallback schedule<br><small>Click any activity for details</small></div>';
