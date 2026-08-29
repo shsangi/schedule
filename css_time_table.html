@@ -196,7 +196,6 @@
         let detailsLoaded = false;
 
         // ----- GOOGLE SHEET URLS -----
-        // REPLACE THESE WITH YOUR PUBLISHED CSV URLs
         const SCHEDULE_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTX16x-Eeh1mguy6se1B25x0hkRIzIme4pX71KlxpML_vZAD34mtlITIqFs8MCAVycXFFft82j1RZDc/pub?output=csv';
         const DETAILS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTX16x-Eeh1mguy6se1B25x0hkRIzIme4pX71KlxpML_vZAD34mtlITIqFs8MCAVycXFFft82j1RZDc/pub?output=csv';
 
@@ -225,112 +224,6 @@
         const modalTo = document.getElementById('modalTo');
         const modalDuration = document.getElementById('modalDuration');
         const modalAgendaList = document.getElementById('modalAgendaList');
-
-        // ----- HARDCODED FALLBACK DETAILS WITH AGENDA -----
-        const FALLBACK_DETAILS = {
-            "Pakistan Affairs": [
-                { 
-                    timestamp: "2026-08-29 10:00:00", 
-                    activityName: "Pakistan Affairs", 
-                    agenda: "1. Pakistan Movement Timeline (1857-1947)\n2. Constitutional Amendments: 1st to 18th\n3. Current Affairs: Pakistan Politics\n4. Foreign Policy Analysis", 
-                    dateTodo: "2026-08-30", 
-                    refLink: "https://drive.google.com/pakistan-affairs", 
-                    remarks: "Focus on 1973 Constitution & 18th Amendment", 
-                    priority: "High" 
-                },
-                { 
-                    timestamp: "2026-08-30 10:00:00", 
-                    activityName: "Pakistan Affairs", 
-                    agenda: "1. Economic Development & 5-Year Plans\n2. Social Issues: Education & Health\n3. Pakistan's Role in UN & OIC\n4. Regional Politics: SAARC, ECO", 
-                    dateTodo: "2026-08-31", 
-                    refLink: "https://drive.google.com/pakistan-affairs", 
-                    remarks: "Connect historical events with current situation", 
-                    priority: "High" 
-                }
-            ],
-            "Current Affairs": [
-                { 
-                    timestamp: "2026-08-29 10:00:00", 
-                    activityName: "Current Affairs", 
-                    agenda: "1. International Relations: US-China Relations\n2. Global Economy: Inflation & Trade\n3. Technology News: AI & Cybersecurity\n4. Environmental Issues: COP28", 
-                    dateTodo: "2026-08-30", 
-                    refLink: "https://drive.google.com/current-affairs", 
-                    remarks: "Read Dawn & BBC News daily", 
-                    priority: "High" 
-                },
-                { 
-                    timestamp: "2026-08-30 10:00:00", 
-                    activityName: "Current Affairs", 
-                    agenda: "1. Middle East Politics: Israel-Palestine\n2. Ukraine-Russia War: Latest Updates\n3. CPEC & China-Pakistan Relations\n4. Global Health: Pandemics & Vaccines", 
-                    dateTodo: "2026-08-31", 
-                    refLink: "https://drive.google.com/current-affairs", 
-                    remarks: "Focus on Pakistan's foreign policy implications", 
-                    priority: "High" 
-                }
-            ],
-            "English Essay & Précis and Reading": [
-                { 
-                    timestamp: "2026-08-29 10:00:00", 
-                    activityName: "English Essay & Précis and Reading", 
-                    agenda: "1. Essay Structure: Introduction, Body, Conclusion\n2. Précis Practice - Passage 1\n3. Vocabulary Building - 50 new words\n4. Past CSS Essay Analysis", 
-                    dateTodo: "2026-08-30", 
-                    refLink: "https://drive.google.com/css-essay-guide", 
-                    remarks: "Focus on writing strong thesis statements", 
-                    priority: "High" 
-                },
-                { 
-                    timestamp: "2026-08-30 10:00:00", 
-                    activityName: "English Essay & Précis and Reading", 
-                    agenda: "1. Body Paragraph Development\n2. Précis Practice - Passage 2\n3. Vocabulary Review & Usage\n4. Argument Building Exercise", 
-                    dateTodo: "2026-08-31", 
-                    refLink: "https://drive.google.com/css-essay-guide", 
-                    remarks: "Work on logical flow of arguments", 
-                    priority: "High" 
-                }
-            ],
-            "MPT Practice Test (MCQs)": [
-                { 
-                    timestamp: "2026-08-29 10:00:00", 
-                    activityName: "MPT Practice Test (MCQs)", 
-                    agenda: "1. Full MPT Mock Test - 200 MCQs\n2. Time Management: 3 Hours\n3. Answer Analysis & Review\n4. Weak Areas Identification", 
-                    dateTodo: "2026-08-30", 
-                    refLink: "https://drive.google.com/mpt-papers", 
-                    remarks: "Focus on time management", 
-                    priority: "High" 
-                },
-                { 
-                    timestamp: "2026-08-30 10:00:00", 
-                    activityName: "MPT Practice Test (MCQs)", 
-                    agenda: "1. Subject-wise MCQs: Pakistan Affairs\n2. Subject-wise MCQs: Current Affairs\n3. Subject-wise MCQs: Islamic Studies\n4. Mock Test Analysis", 
-                    dateTodo: "2026-08-31", 
-                    refLink: "https://drive.google.com/mpt-papers", 
-                    remarks: "Target: 80% accuracy", 
-                    priority: "High" 
-                }
-            ],
-            "GSA (General Science & Ability)": [
-                { 
-                    timestamp: "2026-08-29 10:00:00", 
-                    activityName: "GSA (General Science & Ability)", 
-                    agenda: "1. Biology: Human Body Systems\n2. Chemistry: Periodic Table & Elements\n3. Physics: Mechanics Basics\n4. Mental Math: 50 MCQs Practice", 
-                    dateTodo: "2026-08-30", 
-                    refLink: "https://drive.google.com/gsa-notes", 
-                    remarks: "Focus on environmental science concepts", 
-                    priority: "High" 
-                }
-            ],
-            "Islamic Studies": [
-                { 
-                    timestamp: "2026-08-29 10:00:00", 
-                    activityName: "Islamic Studies", 
-                    agenda: "1. Surah Studies: Last 10 Surahs\n2. Life of Prophet Muhammad (PBUH)\n3. Islamic Jurisprudence & Fiqh\n4. Pillars of Islam & Faith", 
-                    dateTodo: "2026-08-30", 
-                    refLink: "https://drive.google.com/islamic-studies", 
-                    remarks: "Memorize key Hadiths related to governance", 
-                    priority: "High" 
-                }
-            ]
-        };
 
         // ----- Parse CSV (Schedule) -----
         function parseCSVToSchedule(csvText) {
@@ -396,16 +289,18 @@
             return parsed.length > 0 ? parsed : null;
         }
 
-        // ----- Parse CSV (Activity Details) -----
+        // ----- Parse CSV (Activity Details) - Activity Name is in Column B -----
         function parseCSVToDetails(csvText) {
             const lines = csvText.split('\n').filter(line => line.trim() !== '');
             if (lines.length < 2) return null;
 
             console.log('📄 CSV First 3 lines:', lines.slice(0, 3));
 
+            // Get headers from first line
             const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-            console.log('📋 Headers:', headers);
+            console.log('📋 Headers found:', headers);
             
+            // Find column indices by header name
             const timestampIdx = headers.findIndex(h => h.includes('timestamp'));
             const activityIdx = headers.findIndex(h => h.includes('activity name') || h.includes('activity'));
             const agendaIdx = headers.findIndex(h => h.includes('agenda'));
@@ -414,11 +309,16 @@
             const remarksIdx = headers.findIndex(h => h.includes('remarks') || h.includes('remark') || h.includes('note'));
             const priorityIdx = headers.findIndex(h => h.includes('priority'));
 
-            console.log('📌 Column indices:', { timestampIdx, activityIdx, agendaIdx, dateTodoIdx, refLinkIdx, remarksIdx, priorityIdx });
+            console.log('📌 Column indices:', { 
+                timestampIdx, activityIdx, agendaIdx, dateTodoIdx, 
+                refLinkIdx, remarksIdx, priorityIdx 
+            });
 
-            if (activityIdx === -1) {
-                console.error('❌ "Activity Name" column not found in CSV!');
-                return null;
+            // If Activity Name column not found by header, assume it's column B (index 1)
+            let finalActivityIdx = activityIdx;
+            if (finalActivityIdx === -1) {
+                console.log('⚠️ "Activity Name" column not found by header, assuming column B (index 1)');
+                finalActivityIdx = 1; // Column B is index 1
             }
 
             const detailsMap = {};
@@ -428,21 +328,25 @@
                 if (cols.length < 2) continue;
                 if (cols.every(c => c === '')) continue;
 
-                let activityName = activityIdx !== -1 ? cols[activityIdx] : '';
+                // Get activity name from the correct column
+                let activityName = finalActivityIdx !== -1 && cols.length > finalActivityIdx ? cols[finalActivityIdx] : '';
                 if (!activityName) continue;
 
-                // Clean activity name
+                // Clean activity name (remove emojis)
                 const cleanName = activityName.replace(/[☕🌙📚📖✏️📝📘📋]/g, '').trim();
                 
                 if (!detailsMap[cleanName]) {
                     detailsMap[cleanName] = [];
                 }
 
+                // Get agenda with proper line break handling
                 let agenda = '';
                 if (agendaIdx !== -1 && cols.length > agendaIdx) {
                     agenda = cols[agendaIdx];
                     agenda = agenda.replace(/\\n/g, '\n');
                     agenda = agenda.replace(/\r\n/g, '\n');
+                    // Also handle if agenda has literal \n in the text
+                    agenda = agenda.replace(/\\n/g, '\n');
                 }
 
                 const detail = {
@@ -528,9 +432,8 @@
             }
         }
 
-        // ----- Get details for an activity with improved matching -----
+        // ----- Get details for an activity -----
         function getDetailsForActivity(activityName) {
-            // Clean the activity name
             const cleanName = activityName.replace(/[☕🌙📚📖✏️📝📘📋]/g, '').trim();
             
             console.log(`🔍 Looking for details for: "${cleanName}"`);
@@ -561,21 +464,8 @@
                 console.log(`❌ No details found in cache for "${cleanName}"`);
             }
             
-            // If no cache data or no match, use fallback
-            console.log('📋 Using fallback details for:', cleanName);
-            if (FALLBACK_DETAILS[cleanName]) {
-                return FALLBACK_DETAILS[cleanName];
-            }
-            
-            // Try fallback with partial match
-            for (const key in FALLBACK_DETAILS) {
-                if (cleanName.includes(key) || key.includes(cleanName)) {
-                    console.log(`✅ Found fallback match: "${key}" for "${cleanName}"`);
-                    return FALLBACK_DETAILS[key];
-                }
-            }
-            
-            console.log(`❌ No fallback details found for "${cleanName}"`);
+            // If no cache data or no match, return empty array
+            console.log(`❌ No details found for "${cleanName}"`);
             return [];
         }
 
@@ -870,14 +760,6 @@
             
             const scheduleLoaded = await loadScheduleFromSheet();
             await loadActivityDetails();
-            
-            // Always use the details cache (either from sheet or empty)
-            // If sheet failed, use fallback
-            if (!detailsLoaded || Object.keys(activityDetailsCache).length === 0) {
-                console.log('📋 Using fallback details because sheet not loaded');
-                activityDetailsCache = FALLBACK_DETAILS;
-                detailsLoaded = true;
-            }
             
             if (!scheduleLoaded) {
                 container.innerHTML = '<div class="loading-text">⚠️ Using fallback schedule<br><small>Click any activity for details</small></div>';
