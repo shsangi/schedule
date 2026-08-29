@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>CSS 2027 · Dynamic Schedule</title>
+    <title>CSS 2027 · Schedule</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
         body { background: #f2f6fc; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px; }
-        .card { max-width: 640px; width: 100%; background: #ffffff; border-radius: 28px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04); padding: 16px 14px 18px; border: 1px solid rgba(0,20,40,0.03); }
+        .card { max-width: 640px; width: 100%; background: #ffffff; border-radius: 28px; box-shadow: 0 8px 24px rgba(0,0,0,0.04); padding: 16px 14px 18px; border: 1px solid rgba(0,20,40,0.03); }
         .banner { background: #0b1e33; color: white; border-radius: 60px; padding: 8px 20px; display: flex; align-items: center; gap: 10px; margin-bottom: 14px; min-height: 48px; }
         .banner-activity { display: flex; align-items: center; gap: 10px; flex: 1; }
         .status-dot { display: inline-block; width: 10px; height: 10px; background: #4ade80; border-radius: 50%; flex-shrink: 0; animation: pulse 1.8s infinite; }
@@ -21,14 +21,11 @@
         .status-bar .remaining-count { color: #b91c1c; display: flex; align-items: center; gap: 4px; }
         .status-bar .remaining-count span { background: #fee9e7; padding: 0 10px; border-radius: 20px; color: #b91c1c; font-weight: 700; }
         .schedule-grid { display: flex; flex-direction: column; gap: 3px; margin-top: 4px; }
-        .row { display: flex; align-items: center; padding: 6px 10px; border-radius: 40px; background: #fafcff; border: 1px solid #e9edf3; transition: 0.1s ease; font-size: 0.82rem; gap: 4px; cursor: pointer; }
-        .row:hover { background: #e8edf5; transform: scale(1.01); }
+        .row { display: flex; align-items: center; padding: 6px 10px; border-radius: 40px; background: #fafcff; border: 1px solid #e9edf3; transition: 0.1s ease; font-size: 0.82rem; gap: 4px; }
         .row .srno { font-weight: 600; color: #475569; min-width: 28px; font-size: 0.7rem; text-align: center; }
         .row .time { font-weight: 600; color: #1e293b; min-width: 62px; font-size: 0.7rem; letter-spacing: 0.2px; }
         .row .subject { flex: 1; font-weight: 500; color: #0b1e33; padding: 0 4px; font-size: 0.8rem; }
         .row .duration-badge { background: #e9edf3; padding: 1px 12px; border-radius: 40px; font-size: 0.65rem; font-weight: 600; color: #1e293b; white-space: nowrap; }
-        .row .click-hint { font-size: 0.6rem; color: #94a3b8; margin-left: 4px; }
-        .row .record-count { font-size: 0.55rem; background: #dbeafe; padding: 1px 8px; border-radius: 12px; color: #1a4b8c; margin-left: 4px; }
         .row.done { background: #e6f0ff; border-color: #b3d0ff; }
         .row.done .subject { color: #1a4b8c; }
         .row.done .duration-badge { background: #b3d0ff; color: #0b2b5e; }
@@ -50,66 +47,13 @@
         .footer .exam-dates .count-days { font-weight: 700; margin-left: 2px; }
         .loading-text { text-align: center; padding: 20px; color: #5e6f8d; font-size: 0.9rem; }
         .loading-text small { color: #94a3b8; font-size: 0.75rem; display: block; margin-top: 4px; }
-        .cache-badge { background: #dbeafe; padding: 2px 10px; border-radius: 20px; font-size: 0.6rem; color: #1a4b8c; margin-left: 8px; }
-
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000; display: none; justify-content: center; align-items: center; padding: 20px; animation: fadeIn 0.3s ease; }
-        .modal-overlay.active { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        .modal { background: #ffffff; border-radius: 24px; max-width: 550px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; }
-        .modal-close { position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 1.5rem; color: #94a3b8; cursor: pointer; padding: 4px 10px; border-radius: 50%; transition: 0.2s; }
-        .modal-close:hover { background: #f1f5f9; color: #1e293b; }
-        .modal-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-right: 30px; }
-        .modal-header .modal-icon { font-size: 2rem; }
-        .modal-header h2 { font-size: 1.2rem; color: #0b1e33; line-height: 1.3; }
-        .modal-header .modal-badge { background: #e9edf3; padding: 2px 14px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; color: #475569; }
-        .modal-header .modal-count { background: #dbeafe; padding: 2px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; color: #1a4b8c; margin-left: 8px; }
-        .modal-body { color: #334155; }
-        .modal-body .detail-section { margin-bottom: 16px; }
-        .modal-body .detail-section h4 { font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-        .modal-body .detail-section p, .modal-body .detail-section li { font-size: 0.9rem; line-height: 1.6; color: #1e293b; }
-        .modal-body .detail-section ul { list-style: none; padding: 0; }
-        .modal-body .detail-section ul li { padding: 6px 0; border-bottom: 1px solid #f1f5f9; display: flex; gap: 8px; align-items: baseline; }
-        .modal-body .detail-section ul li:before { content: "▸"; color: #3b82f6; font-weight: 700; }
-        .modal-body .detail-section .resource-link { display: inline-block; background: #eff6ff; color: #1a4b8c; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; text-decoration: none; margin: 3px 4px 3px 0; transition: 0.2s; }
-        .modal-body .detail-section .resource-link:hover { background: #dbeafe; }
-        .modal-body .time-details { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #f8fafc; padding: 12px; border-radius: 12px; margin: 8px 0; }
-        .modal-body .time-details span { font-size: 0.85rem; color: #475569; }
-        .modal-body .time-details strong { color: #0b1e33; }
-        .modal-body .priority-badge { display: inline-block; padding: 2px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
-        .priority-high { background: #fee2e2; color: #dc2626; }
-        .priority-medium { background: #fef3c7; color: #d97706; }
-        .priority-low { background: #d1fae5; color: #059669; }
-        .modal-body .agenda-item { background: #f8fafc; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; border-left: 3px solid #3b82f6; }
-        .modal-body .agenda-item .agenda-date { font-size: 0.7rem; color: #64748b; margin-bottom: 4px; }
-        .modal-body .agenda-item .agenda-text { font-size: 0.9rem; color: #1e293b; }
-        .modal-body .agenda-item .agenda-priority { float: right; }
-        .modal-body .agenda-item .agenda-remarks { font-size: 0.8rem; color: #64748b; margin-top: 4px; font-style: italic; }
-        .modal-body .agenda-item .agenda-link { font-size: 0.8rem; margin-top: 4px; }
-        .modal-body .agenda-item .agenda-link a { color: #3b82f6; text-decoration: none; }
-        .modal-body .agenda-item .agenda-link a:hover { text-decoration: underline; }
-
-        @media (max-width: 480px) { 
-            .card { padding: 12px 8px; } 
-            .banner { padding: 6px 14px; min-height: 40px; } 
-            .banner-subject { font-size: 0.8rem; } 
-            .row { padding: 5px 6px; font-size: 0.72rem; } 
-            .row .srno { min-width: 22px; font-size: 0.65rem; } 
-            .row .time { min-width: 52px; font-size: 0.65rem; } 
-            .row .duration-badge { font-size: 0.6rem; padding: 0 10px; } 
-            .row .subject { font-size: 0.7rem; } 
-            .row .record-count { font-size: 0.5rem; padding: 1px 6px; }
-            .status-bar { font-size: 0.7rem; padding: 4px 10px; gap: 4px; } 
-            .status-bar .remaining-time { font-size: 0.75rem; padding: 0 10px; } 
-            .footer { font-size: 0.6rem; flex-direction: column; align-items: stretch; gap: 4px; } 
-            .footer .exam-dates { justify-content: center; } 
-            .modal { padding: 16px; margin: 10px; }
-            .modal-body .time-details { grid-template-columns: 1fr; }
-            .modal-body .agenda-item { padding: 8px 10px; }
-        }
+        .error-text { text-align: center; padding: 20px; color: #b91c1c; font-size: 0.9rem; }
+        .error-text small { color: #94a3b8; font-size: 0.75rem; display: block; margin-top: 4px; }
+        @media (max-width: 480px) { .card { padding: 12px 8px; } .banner { padding: 6px 14px; min-height: 40px; } .banner-subject { font-size: 0.8rem; } .row { padding: 5px 6px; font-size: 0.72rem; } .row .srno { min-width: 22px; font-size: 0.65rem; } .row .time { min-width: 52px; font-size: 0.65rem; } .row .duration-badge { font-size: 0.6rem; padding: 0 10px; } .row .subject { font-size: 0.7rem; } .status-bar { font-size: 0.7rem; padding: 4px 10px; gap: 4px; } .status-bar .remaining-time { font-size: 0.75rem; padding: 0 10px; } .footer { font-size: 0.6rem; flex-direction: column; align-items: stretch; gap: 4px; } .footer .exam-dates { justify-content: center; } }
     </style>
 </head>
 <body>
-<div class="card" id="app">
+<div class="card">
     <div class="banner">
         <div class="banner-activity">
             <span class="status-dot"></span>
@@ -119,660 +63,246 @@
 
     <div class="status-bar">
         <span class="done-count">✅ Done: <span id="doneCount">0</span></span>
-        <span class="remaining-time" id="remainingTimeDisplay">⏳ <span class="time-num" id="remainingTimeMinutes">--</span>:<span class="time-num" id="remainingTimeSeconds">--</span></span>
+        <span class="remaining-time">⏳ <span class="time-num" id="remainingTimeMinutes">--</span>:<span class="time-num" id="remainingTimeSeconds">--</span></span>
         <span class="remaining-count">⏳ Left: <span id="remainingCount">0</span></span>
     </div>
 
     <div class="schedule-grid" id="scheduleContainer">
-        <div class="loading-text">⏳ Loading schedule…</div>
+        <div class="loading-text">⏳ Loading from Google Sheet…<br><small>Please wait</small></div>
     </div>
 
     <div class="footer">
         <div class="exam-dates">
-            <span class="mpt-date">📝 MPT: <span id="mptDateDisplay">10 Oct 2026</span> <span class="count-days" id="mptDays">--</span>d</span>
-            <span class="written-date">✍️ Written: <span id="writtenDateDisplay">27 Jan 2027</span> <span class="count-days" id="writtenDays">--</span>d</span>
+            <span class="mpt-date">📝 MPT: <span id="mptDateDisplay">--</span> <span class="count-days" id="mptDays">--</span>d</span>
+            <span class="written-date">✍️ Written: <span id="writtenDateDisplay">--</span> <span class="count-days" id="writtenDays">--</span>d</span>
         </div>
         <span class="pkt-clock" id="pkTimeDisplay">🇵🇰 <span id="pkTime">--:-- --</span></span>
     </div>
 </div>
 
-<!-- Modal Popup -->
-<div class="modal-overlay" id="modalOverlay">
-    <div class="modal">
-        <button class="modal-close" id="modalClose">✕</button>
-        <div class="modal-header">
-            <span class="modal-icon" id="modalIcon">📚</span>
-            <div>
-                <h2 id="modalTitle">Activity Details</h2>
-                <span class="modal-badge" id="modalType">Compulsory</span>
-                <span class="modal-count" id="modalRecordCount">0 records</span>
-            </div>
-        </div>
-        <div class="modal-body" id="modalBody">
-            <div class="time-details" id="modalTimeDetails">
-                <span>⏰ <strong id="modalFrom">--:--</strong> – <strong id="modalTo">--:--</strong></span>
-                <span>📊 Duration: <strong id="modalDuration">--</strong></span>
-            </div>
-            <div class="detail-section">
-                <h4>📋 ALL RECORDS <span style="font-weight:normal;font-size:0.7rem;color:#94a3b8;">(Newest first)</span></h4>
-                <div id="modalAgendaList">
-                    <div class="agenda-item">
-                        <div class="agenda-text">No agenda available</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
-    (function() {
-        // ----- FALLBACK SCHEDULE -----
-        const FALLBACK_SCHEDULE = [
-            { from: "05:00", to: "08:00", duration: "3h", subject: "English Essay & Précis and Reading", type: "core" },
-            { from: "08:00", to: "09:00", duration: "1h", subject: "GSA (General Science & Ability)", type: "compulsory" },
-            { from: "09:00", to: "10:00", duration: "1h", subject: "Pakistan Affairs", type: "compulsory" },
-            { from: "10:00", to: "11:00", duration: "1h", subject: "Current Affairs", type: "compulsory" },
-            { from: "11:00", to: "12:00", duration: "1h", subject: "Islamic Studies", type: "compulsory" },
-            { from: "12:00", to: "13:00", duration: "1h", subject: "Optional 1 (Computer Science)", type: "optional" },
-            { from: "13:00", to: "14:00", duration: "1h", subject: "☕ Break · Lunch & Zohr", type: "break" },
-            { from: "14:00", to: "15:00", duration: "1h", subject: "Optional 2 (Public Administration)", type: "optional" },
-            { from: "15:00", to: "16:00", duration: "1h", subject: "Optional 3 (History of USA)", type: "optional" },
-            { from: "16:00", to: "17:00", duration: "1h", subject: "Optional 4 (Criminology)", type: "optional" },
-            { from: "17:00", to: "18:00", duration: "1h", subject: "Optional 5 (Gender studies)", type: "optional" },
-            { from: "18:00", to: "19:00", duration: "1h", subject: "Optional 1 (Computer Science) or English Grammar", type: "optional" },
-            { from: "19:00", to: "20:00", duration: "1h", subject: "☕ Break · Dinner & Isha", type: "break" },
-            { from: "20:00", to: "22:00", duration: "2h", subject: "MPT Practice Test (MCQs)", type: "mpt" },
-            { from: "22:00", to: "23:00", duration: "1h", subject: "Review · Notes", type: "review" },
-            { from: "23:00", to: "05:00", duration: "6h", subject: "🌙 Sleep · Night rest", type: "sleep" }
-        ];
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTX16x-Eeh1mguy6se1B25x0hkRIzIme4pX71KlxpML_vZAD34mtlITIqFs8MCAVycXFFft82j1RZDc/pub?output=csv';
 
-        let mptDate = new Date(2026, 9, 10);
-        let writtenDate = new Date(2027, 0, 27);
-        let schedule = [...FALLBACK_SCHEDULE];
-        
-        // Cache for activity details
-        let activityDetailsCache = {};
-        let detailsLoaded = false;
+let schedule = [];
+let mptDate = null;
+let writtenDate = null;
 
-        // ----- GOOGLE SHEET URLS -----
-        const SCHEDULE_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTX16x-Eeh1mguy6se1B25x0hkRIzIme4pX71KlxpML_vZAD34mtlITIqFs8MCAVycXFFft82j1RZDc/pub?output=csv';
-        const DETAILS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTX16x-Eeh1mguy6se1B25x0hkRIzIme4pX71KlxpML_vZAD34mtlITIqFs8MCAVycXFFft82j1RZDc/pub?output=csv';
+const $ = id => document.getElementById(id);
+const container = $('scheduleContainer');
+const currentActivity = $('currentActivity');
+const remainingMinutes = $('remainingTimeMinutes');
+const remainingSeconds = $('remainingTimeSeconds');
+const pkTime = $('pkTime');
+const doneCount = $('doneCount');
+const remainingCount = $('remainingCount');
+const mptDays = $('mptDays');
+const writtenDays = $('writtenDays');
+const mptDateDisplay = $('mptDateDisplay');
+const writtenDateDisplay = $('writtenDateDisplay');
 
-        // ----- DOM refs -----
-        const container = document.getElementById('scheduleContainer');
-        const currentActivityEl = document.getElementById('currentActivity');
-        const remainingTimeMinutesEl = document.getElementById('remainingTimeMinutes');
-        const remainingTimeSecondsEl = document.getElementById('remainingTimeSeconds');
-        const pkTimeEl = document.getElementById('pkTime');
-        const pkTimeDisplayEl = document.getElementById('pkTimeDisplay');
-        const doneCountEl = document.getElementById('doneCount');
-        const remainingCountEl = document.getElementById('remainingCount');
-        const mptDaysEl = document.getElementById('mptDays');
-        const writtenDaysEl = document.getElementById('writtenDays');
-        const mptDateDisplayEl = document.getElementById('mptDateDisplay');
-        const writtenDateDisplayEl = document.getElementById('writtenDateDisplay');
+function getPakistanTime() {
+    const now = new Date();
+    return new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (5 * 60 * 60000));
+}
 
-        // Modal refs
-        const modalOverlay = document.getElementById('modalOverlay');
-        const modalClose = document.getElementById('modalClose');
-        const modalIcon = document.getElementById('modalIcon');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalType = document.getElementById('modalType');
-        const modalRecordCount = document.getElementById('modalRecordCount');
-        const modalFrom = document.getElementById('modalFrom');
-        const modalTo = document.getElementById('modalTo');
-        const modalDuration = document.getElementById('modalDuration');
-        const modalAgendaList = document.getElementById('modalAgendaList');
+function formatFullDateTime(d) {
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    let h = d.getHours() % 12 || 12;
+    return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]}, ${d.getFullYear()}, ${h}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')} ${d.getHours() >= 12 ? 'PM' : 'AM'}`;
+}
 
-        // ----- Parse CSV (Schedule) -----
-        function parseCSVToSchedule(csvText) {
-            const lines = csvText.split('\n').filter(line => line.trim() !== '');
-            if (lines.length < 2) return null;
+function parseDate(str) {
+    if (!str) return null;
+    const parts = str.trim().split(' ');
+    if (parts.length !== 3) return null;
+    const months = { 'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'may': 4, 'jun': 5, 'jul': 6, 'aug': 7, 'sep': 8, 'oct': 9, 'nov': 10, 'dec': 11 };
+    const month = months[parts[1].toLowerCase().substring(0, 3)];
+    if (month === undefined) return null;
+    return new Date(parseInt(parts[2]), month, parseInt(parts[0]));
+}
 
-            const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-            const activityIdx = headers.findIndex(h => h.includes('activity') || h.includes('subject'));
-            const fromIdx = headers.findIndex(h => h === 'from' || h === 'start');
-            const toIdx = headers.findIndex(h => h === 'to' || h === 'end');
-            const durationIdx = headers.findIndex(h => h === 'duration' || h === 'time');
-            const typeIdx = headers.findIndex(h => h === 'type' || h === 'activitytype');
-            const mptDateIdx = headers.findIndex(h => h.includes('mpt') || h.includes('test date'));
-            const writtenDateIdx = headers.findIndex(h => h.includes('written') || h.includes('exam'));
+function getDaysUntil(target, now) {
+    if (!target) return '--';
+    const t = new Date(target); t.setHours(0,0,0,0);
+    const n = new Date(now); n.setHours(0,0,0,0);
+    return Math.max(0, Math.ceil((t - n) / (1000 * 60 * 60 * 24)));
+}
 
-            const parsed = [];
-            let mptDateFound = null;
-            let writtenDateFound = null;
+function parseCSV(text) {
+    const lines = text.split('\n').filter(l => l.trim());
+    if (lines.length < 2) return null;
+    
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+    const idx = {
+        subject: headers.findIndex(h => h.includes('activity') || h.includes('subject')),
+        from: headers.findIndex(h => h === 'from' || h === 'start'),
+        to: headers.findIndex(h => h === 'to' || h === 'end'),
+        duration: headers.findIndex(h => h === 'duration' || h === 'time'),
+        type: headers.findIndex(h => h === 'type' || h === 'activitytype'),
+        mpt: headers.findIndex(h => h.includes('mpt') || h.includes('test date')),
+        written: headers.findIndex(h => h.includes('written') || h.includes('exam'))
+    };
 
-            for (let i = 1; i < lines.length; i++) {
-                const cols = lines[i].split(',').map(c => c.trim());
-                if (cols.length < 4) continue;
-                if (cols.every(c => c === '')) continue;
+    const data = [];
+    let mptStr = null, writtenStr = null;
 
-                let subject = activityIdx !== -1 ? cols[activityIdx] : cols[0] || '';
-                let from = (fromIdx !== -1 ? cols[fromIdx] : cols[1] || '').replace(/\s/g, '');
-                let to = (toIdx !== -1 ? cols[toIdx] : cols[2] || '').replace(/\s/g, '');
-                let duration = (durationIdx !== -1 ? cols[durationIdx] : cols[3] || '').replace(/\s/g, '');
+    for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(',').map(c => c.trim());
+        if (cols.length < 4 || cols.every(c => !c)) continue;
 
-                if (mptDateIdx !== -1 && cols.length > mptDateIdx && cols[mptDateIdx]) {
-                    const dateStr = cols[mptDateIdx].trim();
-                    if (dateStr.match(/\d{1,2}\s+[A-Za-z]{3}\s+\d{4}/)) mptDateFound = dateStr;
-                }
-                if (writtenDateIdx !== -1 && cols.length > writtenDateIdx && cols[writtenDateIdx]) {
-                    const dateStr = cols[writtenDateIdx].trim();
-                    if (dateStr.match(/\d{1,2}\s+[A-Za-z]{3}\s+\d{4}/)) writtenDateFound = dateStr;
-                }
+        const subject = idx.subject >= 0 ? cols[idx.subject] : cols[0] || '';
+        let from = (idx.from >= 0 ? cols[idx.from] : cols[1] || '').replace(/\s/g, '');
+        let to = (idx.to >= 0 ? cols[idx.to] : cols[2] || '').replace(/\s/g, '');
+        let duration = (idx.duration >= 0 ? cols[idx.duration] : cols[3] || '').replace(/\s/g, '');
 
-                if (!from || !to || !subject) continue;
-                if (from.length === 4) from = '0' + from;
-                if (to.length === 4) to = '0' + to;
-                if (!/^\d{2}:\d{2}$/.test(from) || !/^\d{2}:\d{2}$/.test(to)) continue;
+        if (idx.mpt >= 0 && cols[idx.mpt]?.match(/\d{1,2}\s+[A-Za-z]{3}\s+\d{4}/)) mptStr = cols[idx.mpt];
+        if (idx.written >= 0 && cols[idx.written]?.match(/\d{1,2}\s+[A-Za-z]{3}\s+\d{4}/)) writtenStr = cols[idx.written];
 
-                if (!duration || !duration.match(/^\d+[hm]/i)) {
-                    const fromH = parseInt(from.split(':')[0]);
-                    const toH = parseInt(to.split(':')[0]);
-                    const diff = toH - fromH;
-                    duration = (diff > 0 && diff <= 24) ? diff + 'h' : '1h';
-                }
+        if (!from || !to || !subject) continue;
+        if (from.length === 4) from = '0' + from;
+        if (to.length === 4) to = '0' + to;
+        if (!/^\d{2}:\d{2}$/.test(from) || !/^\d{2}:\d{2}$/.test(to)) continue;
 
-                let type = 'compulsory';
-                if (typeIdx !== -1 && cols.length > typeIdx) {
-                    const typeVal = cols[typeIdx].toLowerCase();
-                    if (['core', 'compulsory', 'optional', 'mpt', 'review', 'break', 'sleep'].includes(typeVal)) type = typeVal;
-                }
+        if (!duration || !duration.match(/^\d+[hm]/i)) {
+            const diff = parseInt(to.split(':')[0]) - parseInt(from.split(':')[0]);
+            duration = (diff > 0 && diff <= 24) ? diff + 'h' : '1h';
+        }
 
-                parsed.push({ from, to, duration, subject, type });
+        let type = 'compulsory';
+        if (idx.type >= 0 && cols[idx.type]) {
+            const t = cols[idx.type].toLowerCase();
+            if (['core','compulsory','optional','mpt','review','break','sleep'].includes(t)) type = t;
+        } else {
+            const s = subject.toLowerCase();
+            if (s.includes('break') || s.includes('lunch') || s.includes('dinner')) type = 'break';
+            else if (s.includes('sleep') || s.includes('rest')) type = 'sleep';
+            else if (s.includes('mpt') || s.includes('practice')) type = 'mpt';
+            else if (s.includes('review')) type = 'review';
+            else if (s.includes('essay') || s.includes('precis')) type = 'core';
+            else if (s.includes('optional')) type = 'optional';
+        }
+
+        data.push({ from, to, duration, subject, type });
+    }
+
+    if (mptStr) { const d = parseDate(mptStr); if (d) { mptDate = d; mptDateDisplay.textContent = mptStr; } }
+    if (writtenStr) { const d = parseDate(writtenStr); if (d) { writtenDate = d; writtenDateDisplay.textContent = writtenStr; } }
+
+    return data.length ? data : null;
+}
+
+async function loadSchedule() {
+    try {
+        const res = await fetch(SHEET_URL, { cache: 'no-store' });
+        if (!res.ok) throw new Error('Failed to fetch');
+        const csv = await res.text();
+        const parsed = parseCSV(csv);
+        if (parsed && parsed.length) {
+            schedule = parsed;
+            return true;
+        }
+        return false;
+    } catch (e) {
+        console.error('Error:', e);
+        return false;
+    }
+}
+
+function getCurrent(now) {
+    const secs = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+    let idx = -1, remain = 0;
+
+    for (let i = 0; i < schedule.length; i++) {
+        const [fh, fm] = schedule[i].from.split(':').map(Number);
+        const [th, tm] = schedule[i].to.split(':').map(Number);
+        const from = fh * 3600 + fm * 60;
+        let to = th * 3600 + tm * 60;
+
+        if (to < from) {
+            if (secs >= from || secs < to) {
+                idx = i;
+                remain = secs >= from ? (86400 - secs) + to : to - secs;
+                break;
             }
-
-            if (mptDateFound) { const d = parseDateString(mptDateFound); if (d) { mptDate = d; mptDateDisplayEl.textContent = mptDateFound; } }
-            if (writtenDateFound) { const d = parseDateString(writtenDateFound); if (d) { writtenDate = d; writtenDateDisplayEl.textContent = writtenDateFound; } }
-
-            return parsed.length > 0 ? parsed : null;
+        } else if (secs >= from && secs < to) {
+            idx = i;
+            remain = to - secs;
+            break;
         }
+    }
 
-        // ----- Parse CSV (Activity Details) - Activity Name is in Column B -----
-        function parseCSVToDetails(csvText) {
-            const lines = csvText.split('\n').filter(line => line.trim() !== '');
-            if (lines.length < 2) return null;
-
-            console.log('📄 CSV First 3 lines:', lines.slice(0, 3));
-
-            // Get headers from first line
-            const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-            console.log('📋 Headers found:', headers);
-            
-            // Find column indices by header name
-            const timestampIdx = headers.findIndex(h => h.includes('timestamp'));
-            const activityIdx = headers.findIndex(h => h.includes('activity name') || h.includes('activity'));
-            const agendaIdx = headers.findIndex(h => h.includes('agenda'));
-            const dateTodoIdx = headers.findIndex(h => h.includes('date todo') || h.includes('date'));
-            const refLinkIdx = headers.findIndex(h => h.includes('ref link') || h.includes('link') || h.includes('url'));
-            const remarksIdx = headers.findIndex(h => h.includes('remarks') || h.includes('remark') || h.includes('note'));
-            const priorityIdx = headers.findIndex(h => h.includes('priority'));
-
-            console.log('📌 Column indices:', { 
-                timestampIdx, activityIdx, agendaIdx, dateTodoIdx, 
-                refLinkIdx, remarksIdx, priorityIdx 
-            });
-
-            // If Activity Name column not found by header, assume it's column B (index 1)
-            let finalActivityIdx = activityIdx;
-            if (finalActivityIdx === -1) {
-                console.log('⚠️ "Activity Name" column not found by header, assuming column B (index 1)');
-                finalActivityIdx = 1; // Column B is index 1
-            }
-
-            const detailsMap = {};
-
-            for (let i = 1; i < lines.length; i++) {
-                const cols = lines[i].split(',').map(c => c.trim());
-                if (cols.length < 2) continue;
-                if (cols.every(c => c === '')) continue;
-
-                // Get activity name from the correct column
-                let activityName = finalActivityIdx !== -1 && cols.length > finalActivityIdx ? cols[finalActivityIdx] : '';
-                if (!activityName) continue;
-
-                // Clean activity name (remove emojis)
-                const cleanName = activityName.replace(/[☕🌙📚📖✏️📝📘📋]/g, '').trim();
-                
-                if (!detailsMap[cleanName]) {
-                    detailsMap[cleanName] = [];
-                }
-
-                // Get agenda with proper line break handling
-                let agenda = '';
-                if (agendaIdx !== -1 && cols.length > agendaIdx) {
-                    agenda = cols[agendaIdx];
-                    agenda = agenda.replace(/\\n/g, '\n');
-                    agenda = agenda.replace(/\r\n/g, '\n');
-                    // Also handle if agenda has literal \n in the text
-                    agenda = agenda.replace(/\\n/g, '\n');
-                }
-
-                const detail = {
-                    timestamp: timestampIdx !== -1 && cols.length > timestampIdx ? cols[timestampIdx] : '',
-                    activityName: cleanName,
-                    agenda: agenda,
-                    dateTodo: dateTodoIdx !== -1 && cols.length > dateTodoIdx ? cols[dateTodoIdx] : '',
-                    refLink: refLinkIdx !== -1 && cols.length > refLinkIdx ? cols[refLinkIdx] : '',
-                    remarks: remarksIdx !== -1 && cols.length > remarksIdx ? cols[remarksIdx] : '',
-                    priority: priorityIdx !== -1 && cols.length > priorityIdx ? cols[priorityIdx] : ''
-                };
-
-                console.log(`📝 Found detail for "${cleanName}":`, detail);
-                detailsMap[cleanName].push(detail);
-            }
-
-            // Sort by timestamp (newest first)
-            for (const key in detailsMap) {
-                detailsMap[key].sort((a, b) => {
-                    return new Date(b.timestamp) - new Date(a.timestamp);
-                });
-            }
-
-            console.log('✅ Parsed details map keys:', Object.keys(detailsMap));
-            return detailsMap;
+    if (idx === -1) {
+        let min = Infinity;
+        for (let i = 0; i < schedule.length; i++) {
+            const [h, m] = schedule[i].from.split(':').map(Number);
+            let diff = h * 3600 + m * 60 - secs;
+            if (diff < 0) diff += 86400;
+            if (diff < min) { min = diff; idx = i; }
         }
+        remain = min;
+    }
 
-        // ----- Parse date string -----
-        function parseDateString(dateStr) {
-            if (!dateStr || dateStr.trim() === '') return null;
-            const parts = dateStr.trim().split(' ');
-            if (parts.length !== 3) return null;
-            const day = parseInt(parts[0]);
-            const monthMap = { 'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'may': 4, 'jun': 5, 'jul': 6, 'aug': 7, 'sep': 8, 'oct': 9, 'nov': 10, 'dec': 11 };
-            const month = monthMap[parts[1].toLowerCase().substring(0, 3)];
-            if (month === undefined) return null;
-            const year = parseInt(parts[2]);
-            if (isNaN(day) || isNaN(year)) return null;
-            return new Date(year, month, day);
-        }
+    return { idx: Math.max(0, idx), remain };
+}
 
-        // ----- Fetch schedule -----
-        async function loadScheduleFromSheet() {
-            try {
-                console.log('📡 Fetching schedule from:', SCHEDULE_CSV_URL);
-                const response = await fetch(SCHEDULE_CSV_URL, { cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } });
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const csvText = await response.text();
-                const parsed = parseCSVToSchedule(csvText);
-                if (parsed && parsed.length > 0) {
-                    schedule = parsed;
-                    console.log('✅ Loaded schedule with', schedule.length, 'entries');
-                    return true;
-                }
-                return false;
-            } catch (error) {
-                console.error('Error loading schedule:', error);
-                return false;
-            }
-        }
+function render() {
+    const now = getPakistanTime();
+    pkTime.textContent = formatFullDateTime(now);
 
-        // ----- Fetch activity details -----
-        async function loadActivityDetails() {
-            try {
-                console.log('📡 Fetching details from:', DETAILS_CSV_URL);
-                const response = await fetch(DETAILS_CSV_URL, { cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } });
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const csvText = await response.text();
-                console.log('📄 CSV length:', csvText.length);
-                
-                const parsed = parseCSVToDetails(csvText);
-                if (parsed && Object.keys(parsed).length > 0) {
-                    activityDetailsCache = parsed;
-                    detailsLoaded = true;
-                    console.log('✅ Loaded details for', Object.keys(parsed).length, 'activities');
-                    console.log('📊 Details keys:', Object.keys(activityDetailsCache));
-                    return true;
-                }
-                return false;
-            } catch (error) {
-                console.error('❌ Error loading activity details:', error);
-                return false;
-            }
-        }
+    if (mptDate) mptDays.textContent = getDaysUntil(mptDate, now);
+    if (writtenDate) writtenDays.textContent = getDaysUntil(writtenDate, now);
 
-        // ----- Get details for an activity -----
-        function getDetailsForActivity(activityName) {
-            const cleanName = activityName.replace(/[☕🌙📚📖✏️📝📘📋]/g, '').trim();
-            
-            console.log(`🔍 Looking for details for: "${cleanName}"`);
-            console.log('📚 Available in cache:', Object.keys(activityDetailsCache));
-            
-            // If we have cached data, try to find matches
-            if (detailsLoaded && Object.keys(activityDetailsCache).length > 0) {
-                // Try exact match
-                if (activityDetailsCache[cleanName]) {
-                    console.log(`✅ Found exact match for "${cleanName}"`);
-                    return activityDetailsCache[cleanName];
-                }
-                
-                // Try with original name
-                if (activityDetailsCache[activityName]) {
-                    console.log(`✅ Found match with original name "${activityName}"`);
-                    return activityDetailsCache[activityName];
-                }
-                
-                // Try partial match
-                for (const key in activityDetailsCache) {
-                    if (cleanName.includes(key) || key.includes(cleanName)) {
-                        console.log(`✅ Found partial match: "${key}" for "${cleanName}"`);
-                        return activityDetailsCache[key];
-                    }
-                }
-                
-                console.log(`❌ No details found in cache for "${cleanName}"`);
-            }
-            
-            // If no cache data or no match, return empty array
-            console.log(`❌ No details found for "${cleanName}"`);
-            return [];
-        }
+    const { idx, remain } = getCurrent(now);
+    const item = schedule[idx] || { subject: 'No schedule', type: '' };
 
-        // ----- Pakistan Time -----
-        function getPakistanTime() {
-            const now = new Date();
-            const pkOffset = 5 * 60;
-            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-            return new Date(utc + (pkOffset * 60000));
-        }
+    const prefix = { core: '📘 ', compulsory: '📖 ', optional: '📚 ', mpt: '📝 ', review: '📋 ' };
+    let activity = item.subject;
+    if (item.type === 'break') activity = '☕ ' + activity;
+    else if (item.type === 'sleep') activity = '🌙 ' + activity;
+    else if (prefix[item.type]) activity = prefix[item.type] + activity;
+    currentActivity.textContent = activity;
 
-        function formatFullDateTime(d) {
-            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            
-            const dayName = days[d.getDay()];
-            const day = d.getDate();
-            const month = months[d.getMonth()];
-            const year = d.getFullYear();
-            
-            let hours = d.getHours();
-            const minutes = d.getMinutes().toString().padStart(2, '0');
-            const seconds = d.getSeconds().toString().padStart(2, '0');
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12 || 12;
-            
-            return `${dayName}, ${day} ${month}, ${year}, ${hours}:${minutes}:${seconds} ${ampm}`;
-        }
+    const mins = Math.floor(remain / 60);
+    const secs = Math.floor(remain % 60);
+    remainingMinutes.textContent = String(mins).padStart(2, '0');
+    remainingSeconds.textContent = String(secs).padStart(2, '0');
 
-        function formatDate(dateStr) {
-            if (!dateStr) return '--';
-            try {
-                const d = new Date(dateStr);
-                if (isNaN(d.getTime())) return dateStr;
-                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
-            } catch {
-                return dateStr;
-            }
-        }
+    let html = '', done = 0, left = 0;
+    for (let i = 0; i < schedule.length; i++) {
+        const s = schedule[i];
+        const isBreak = s.type === 'break' || s.type === 'sleep';
+        let cls = 'row';
+        if (i < idx) { cls += ' done'; done++; }
+        else if (i === idx) { cls += ' current'; left++; }
+        else { left++; }
+        if (isBreak) cls += ' break-row';
 
-        function getDaysUntil(targetDate, nowPK) {
-            const target = new Date(targetDate);
-            target.setHours(0, 0, 0, 0);
-            const now = new Date(nowPK);
-            now.setHours(0, 0, 0, 0);
-            const diffTime = target.getTime() - now.getTime();
-            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        }
+        const emoji = { core: ' ✏️', compulsory: ' 📖', optional: ' 📚', mpt: ' 📝', review: ' 📘', break: '', sleep: ' 🌙' };
+        html += `<div class="${cls}">
+            <span class="srno">${i + 1}</span>
+            <span class="time">${s.from} – ${s.to}</span>
+            <span class="subject">${s.subject}${emoji[s.type] || ''}</span>
+            <span class="duration-badge">${s.duration}</span>
+        </div>`;
+    }
 
-        // ----- Get current index & remaining seconds -----
-        function getCurrentIndexAndRemaining(nowPK) {
-            const nowSecondsInDay = (nowPK.getHours() * 3600) + (nowPK.getMinutes() * 60) + nowPK.getSeconds();
-            let currentIdx = -1;
-            let remainingSeconds = 0;
+    container.innerHTML = html;
+    doneCount.textContent = done;
+    remainingCount.textContent = left;
+}
 
-            for (let i = 0; i < schedule.length; i++) {
-                const s = schedule[i];
-                const fromParts = s.from.split(':').map(Number);
-                const toParts = s.to.split(':').map(Number);
-                const fromSec = (fromParts[0] * 3600) + (fromParts[1] * 60);
-                let toSec = (toParts[0] * 3600) + (toParts[1] * 60);
+async function init() {
+    const loaded = await loadSchedule();
+    if (!loaded) {
+        container.innerHTML = '<div class="error-text">❌ Failed to load schedule<br><small>Please check your internet connection and try refreshing</small></div>';
+        return;
+    }
+    render();
+    setInterval(render, 1000);
+}
 
-                let isActive = false;
-                if (toSec < fromSec) {
-                    if (nowSecondsInDay >= fromSec || nowSecondsInDay < toSec) {
-                        isActive = true;
-                        if (nowSecondsInDay >= fromSec) remainingSeconds = (86400 - nowSecondsInDay) + toSec;
-                        else remainingSeconds = toSec - nowSecondsInDay;
-                    }
-                } else {
-                    if (nowSecondsInDay >= fromSec && nowSecondsInDay < toSec) {
-                        isActive = true;
-                        remainingSeconds = toSec - nowSecondsInDay;
-                    }
-                }
-                if (isActive) { currentIdx = i; break; }
-            }
-
-            if (currentIdx === -1) {
-                let minDiff = Infinity;
-                let candidate = -1;
-                for (let i = 0; i < schedule.length; i++) {
-                    const s = schedule[i];
-                    const fromParts = s.from.split(':').map(Number);
-                    const fromSec = (fromParts[0] * 3600) + (fromParts[1] * 60);
-                    let diff = fromSec - nowSecondsInDay;
-                    if (diff < 0) diff += 86400;
-                    if (diff < minDiff) { minDiff = diff; candidate = i; }
-                }
-                if (candidate !== -1) { currentIdx = candidate; remainingSeconds = minDiff; }
-                else { currentIdx = 0; remainingSeconds = 0; }
-            }
-            return { currentIdx, remainingSeconds };
-        }
-
-        // ----- Show modal with activity details -----
-        function showModal(activityName, from, to, duration) {
-            const cleanName = activityName.replace(/[☕🌙📚📖✏️📝📘📋]/g, '').trim();
-            
-            const details = getDetailsForActivity(activityName);
-            
-            console.log(`📊 Showing details for "${cleanName}":`, details.length, 'records');
-            
-            modalIcon.textContent = getIconForActivity(cleanName);
-            modalTitle.textContent = cleanName;
-            modalType.textContent = getTypeForActivity(cleanName);
-            modalRecordCount.textContent = `${details.length} records`;
-            modalFrom.textContent = from;
-            modalTo.textContent = to;
-            modalDuration.textContent = duration;
-
-            if (details.length > 0) {
-                let html = '';
-                details.forEach((detail) => {
-                    const priority = detail.priority || '';
-                    let priorityBadge = '';
-                    if (priority) {
-                        const pLower = priority.toLowerCase();
-                        let badgeClass = 'priority-low';
-                        if (pLower === 'high') badgeClass = 'priority-high';
-                        else if (pLower === 'medium') badgeClass = 'priority-medium';
-                        priorityBadge = `<span class="priority-badge ${badgeClass}">${priority}</span>`;
-                    }
-
-                    const agendaItems = detail.agenda ? detail.agenda.split('\n').filter(item => item.trim()) : [];
-                    const agendaText = agendaItems.length > 0 ? agendaItems.map(item => `<div>• ${item.trim()}</div>`).join('') : 'No agenda items';
-
-                    html += `
-                        <div class="agenda-item">
-                            <div class="agenda-date">
-                                📅 ${detail.timestamp ? new Date(detail.timestamp).toLocaleString() : 'Date not set'}
-                                ${detail.dateTodo ? ` | 🎯 Todo: ${formatDate(detail.dateTodo)}` : ''}
-                                ${priorityBadge}
-                            </div>
-                            <div class="agenda-text">${agendaText}</div>
-                            ${detail.remarks ? `<div class="agenda-remarks">💡 ${detail.remarks}</div>` : ''}
-                            ${detail.refLink ? `<div class="agenda-link">🔗 <a href="${detail.refLink}" target="_blank">${detail.refLink}</a></div>` : ''}
-                        </div>
-                    `;
-                });
-                modalAgendaList.innerHTML = html;
-            } else {
-                modalAgendaList.innerHTML = `
-                    <div class="agenda-item">
-                        <div class="agenda-text">No agenda records found for this activity</div>
-                    </div>
-                `;
-            }
-
-            modalOverlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        // ----- Helper functions -----
-        function getIconForActivity(name) {
-            const icons = {
-                'English Essay': '✏️',
-                'GSA': '🔬',
-                'Pakistan Affairs': '🇵🇰',
-                'Current Affairs': '📰',
-                'Islamic Studies': '🕌',
-                'Computer Science': '💻',
-                'Public Administration': '🏛️',
-                'History of USA': '🇺🇸',
-                'Criminology': '⚖️',
-                'Gender studies': '👩‍⚖️',
-                'English Grammar': '📝',
-                'MPT Practice': '📝',
-                'Review': '📘',
-                'Sleep': '🌙'
-            };
-            for (const [key, icon] of Object.entries(icons)) {
-                if (name.includes(key)) return icon;
-            }
-            return '📚';
-        }
-
-        function getTypeForActivity(name) {
-            if (name.includes('English Essay') || name.includes('GSA') || name.includes('Pakistan') || 
-                name.includes('Current') || name.includes('Islamic')) {
-                return 'Compulsory';
-            }
-            if (name.includes('Optional') || name.includes('Computer') || name.includes('History') || 
-                name.includes('Criminology') || name.includes('Gender') || name.includes('Administration')) {
-                return 'Optional';
-            }
-            if (name.includes('MPT')) return 'MPT';
-            if (name.includes('Review')) return 'Review';
-            if (name.includes('Break')) return 'Break';
-            if (name.includes('Sleep')) return 'Rest';
-            return 'Activity';
-        }
-
-        // ----- Close modal -----
-        function closeModal() {
-            modalOverlay.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        // ----- Modal event listeners -----
-        modalClose.addEventListener('click', closeModal);
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) closeModal();
-        });
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeModal();
-        });
-
-        // ----- Render schedule -----
-        function renderSchedule(currentIdx) {
-            let html = '';
-            let doneCount = 0;
-            let remainingCount = 0;
-
-            for (let i = 0; i < schedule.length; i++) {
-                const s = schedule[i];
-                const isBreak = s.type === 'break' || s.type === 'sleep';
-                let rowClass = 'row';
-                let status = 'upcoming';
-                if (i < currentIdx) status = 'done';
-                else if (i === currentIdx) status = 'current';
-
-                if (status === 'done') { rowClass += ' done'; doneCount++; }
-                else if (status === 'current') { rowClass += ' current'; remainingCount++; }
-                else { remainingCount++; }
-                if (isBreak) rowClass += ' break-row';
-
-                const srno = i + 1;
-                const timeLabel = `${s.from} – ${s.to}`;
-                let subjectDisplay = s.subject;
-                const typeEmoji = { 'core': ' ✏️', 'compulsory': ' 📖', 'optional': ' 📚', 'mpt': ' 📝', 'review': ' 📘', 'break': '', 'sleep': ' 🌙' };
-                subjectDisplay += typeEmoji[s.type] || '';
-
-                const details = getDetailsForActivity(s.subject);
-                const recordCount = details.length;
-                const countBadge = recordCount > 0 ? `<span class="record-count">${recordCount} 📋</span>` : '';
-
-                html += `<div class="${rowClass}" data-subject="${s.subject}" data-from="${s.from}" data-to="${s.to}" data-duration="${s.duration}">
-                    <span class="srno">${srno}</span>
-                    <span class="time">${timeLabel}</span>
-                    <span class="subject">${subjectDisplay} ${countBadge}</span>
-                    <span class="duration-badge">${s.duration}</span>
-                    <span class="click-hint">ⓘ</span>
-                </div>`;
-            }
-
-            container.innerHTML = html;
-            doneCountEl.textContent = doneCount;
-            remainingCountEl.textContent = remainingCount;
-
-            document.querySelectorAll('.row').forEach(row => {
-                row.addEventListener('click', function() {
-                    const subject = this.dataset.subject;
-                    const from = this.dataset.from;
-                    const to = this.dataset.to;
-                    const duration = this.dataset.duration;
-                    showModal(subject, from, to, duration);
-                });
-            });
-        }
-
-        // ----- Update UI -----
-        function updateUI() {
-            const nowPK = getPakistanTime();
-            pkTimeDisplayEl.innerHTML = `🇵🇰 <span id="pkTime">${formatFullDateTime(nowPK)}</span>`;
-            
-            mptDaysEl.textContent = Math.max(0, getDaysUntil(mptDate, nowPK));
-            writtenDaysEl.textContent = Math.max(0, getDaysUntil(writtenDate, nowPK));
-
-            const { currentIdx, remainingSeconds } = getCurrentIndexAndRemaining(nowPK);
-            const currentItem = schedule[currentIdx] || schedule[0];
-
-            let activityText = currentItem.subject;
-            const prefixMap = { 'core': '📘 ', 'compulsory': '📖 ', 'optional': '📚 ', 'mpt': '📝 ', 'review': '📋 ' };
-            if (currentItem.type === 'break') activityText = '☕ ' + currentItem.subject.replace('☕ ', '');
-            else if (currentItem.type === 'sleep') activityText = '🌙 ' + currentItem.subject.replace('🌙 ', '');
-            else { const prefix = prefixMap[currentItem.type] || ''; activityText = prefix + currentItem.subject; }
-            currentActivityEl.textContent = activityText;
-
-            const mins = Math.floor(remainingSeconds / 60);
-            const secs = Math.floor(remainingSeconds % 60);
-            remainingTimeMinutesEl.textContent = String(mins).padStart(2, '0');
-            remainingTimeSecondsEl.textContent = String(secs).padStart(2, '0');
-
-            renderSchedule(currentIdx);
-        }
-
-        // ----- Init -----
-        async function init() {
-            container.innerHTML = '<div class="loading-text">⏳ Loading schedule…</div>';
-            
-            const scheduleLoaded = await loadScheduleFromSheet();
-            await loadActivityDetails();
-            
-            if (!scheduleLoaded) {
-                container.innerHTML = '<div class="loading-text">⚠️ Using fallback schedule<br><small>Click any activity for details</small></div>';
-            } else {
-                container.innerHTML = '<div class="loading-text">✅ Schedule loaded! <span class="cache-badge">⚡ click any activity for details</span><br><small>CSS 2027 Study Plan</small></div>';
-            }
-            
-            updateUI();
-            setInterval(updateUI, 1000);
-        }
-
-        document.addEventListener('DOMContentLoaded', init);
-    })();
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
