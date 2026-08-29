@@ -8,11 +8,13 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
         body { background: #f2f6fc; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px; }
         .card { max-width: 640px; width: 100%; background: #ffffff; border-radius: 28px; box-shadow: 0 8px 24px rgba(0,0,0,0.04); padding: 16px 14px 18px; border: 1px solid rgba(0,20,40,0.03); }
-        .banner { background: #0b1e33; color: white; border-radius: 60px; padding: 8px 20px; display: flex; align-items: center; gap: 10px; margin-bottom: 14px; min-height: 48px; }
+        .banner { background: #0b1e33; color: white; border-radius: 60px; padding: 8px 20px; display: flex; align-items: center; gap: 10px; margin-bottom: 14px; min-height: 48px; cursor: pointer; transition: background 0.2s; }
+        .banner:hover { background: #162d4a; }
         .banner-activity { display: flex; align-items: center; gap: 10px; flex: 1; }
         .status-dot { display: inline-block; width: 10px; height: 10px; background: #4ade80; border-radius: 50%; flex-shrink: 0; animation: pulse 1.8s infinite; }
         @keyframes pulse { 0% { opacity: 0.5; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0.5; transform: scale(0.95); } }
         .banner-subject { font-weight: 600; font-size: 0.95rem; line-height: 1.3; letter-spacing: 0.2px; word-break: break-word; }
+        .banner-hint { font-size: 0.7rem; opacity: 0.6; margin-left: 4px; }
         .status-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: #f1f5f9; padding: 6px 14px; border-radius: 40px; margin-bottom: 12px; font-size: 0.8rem; font-weight: 500; color: #1e293b; flex-wrap: wrap; }
         .status-bar .done-count { color: #1a4b8c; display: flex; align-items: center; gap: 4px; }
         .status-bar .done-count span { background: #b3d0ff; padding: 0 10px; border-radius: 20px; color: #0b2b5e; font-weight: 700; }
@@ -21,7 +23,8 @@
         .status-bar .remaining-count { color: #b91c1c; display: flex; align-items: center; gap: 4px; }
         .status-bar .remaining-count span { background: #fee9e7; padding: 0 10px; border-radius: 20px; color: #b91c1c; font-weight: 700; }
         .schedule-grid { display: flex; flex-direction: column; gap: 3px; margin-top: 4px; }
-        .row { display: flex; align-items: center; padding: 6px 10px; border-radius: 40px; background: #fafcff; border: 1px solid #e9edf3; transition: 0.1s ease; font-size: 0.82rem; gap: 4px; }
+        .row { display: flex; align-items: center; padding: 6px 10px; border-radius: 40px; background: #fafcff; border: 1px solid #e9edf3; transition: 0.1s ease; font-size: 0.82rem; gap: 4px; cursor: pointer; }
+        .row:hover { background: #f0f4ff; border-color: #b3d0ff; }
         .row .srno { font-weight: 600; color: #475569; min-width: 28px; font-size: 0.7rem; text-align: center; }
         .row .time { font-weight: 600; color: #1e293b; min-width: 62px; font-size: 0.7rem; letter-spacing: 0.2px; }
         .row .subject { flex: 1; font-weight: 500; color: #0b1e33; padding: 0 4px; font-size: 0.8rem; }
@@ -49,15 +52,24 @@
         .loading-text small { color: #94a3b8; font-size: 0.75rem; display: block; margin-top: 4px; }
         .error-text { text-align: center; padding: 20px; color: #b91c1c; font-size: 0.9rem; }
         .error-text small { color: #94a3b8; font-size: 0.75rem; display: block; margin-top: 4px; }
-        @media (max-width: 480px) { .card { padding: 12px 8px; } .banner { padding: 6px 14px; min-height: 40px; } .banner-subject { font-size: 0.8rem; } .row { padding: 5px 6px; font-size: 0.72rem; } .row .srno { min-width: 22px; font-size: 0.65rem; } .row .time { min-width: 52px; font-size: 0.65rem; } .row .duration-badge { font-size: 0.6rem; padding: 0 10px; } .row .subject { font-size: 0.7rem; } .status-bar { font-size: 0.7rem; padding: 4px 10px; gap: 4px; } .status-bar .remaining-time { font-size: 0.75rem; padding: 0 10px; } .footer { font-size: 0.6rem; flex-direction: column; align-items: stretch; gap: 4px; } .footer .exam-dates { justify-content: center; } }
+        .details-panel { background: #f8fafc; border-radius: 16px; padding: 16px; margin-top: 12px; border: 1px solid #e2e8f0; display: none; }
+        .details-panel.active { display: block; }
+        .details-panel h4 { color: #0b1e33; margin-bottom: 10px; font-size: 0.9rem; }
+        .details-panel .detail-item { display: flex; padding: 4px 0; font-size: 0.8rem; border-bottom: 1px solid #eef2f6; }
+        .details-panel .detail-item .label { font-weight: 600; color: #475569; min-width: 100px; }
+        .details-panel .detail-item .value { color: #0b1e33; }
+        .details-panel .close-btn { float: right; background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer; padding: 0 4px; }
+        .details-panel .close-btn:hover { color: #475569; }
+        @media (max-width: 480px) { .card { padding: 12px 8px; } .banner { padding: 6px 14px; min-height: 40px; } .banner-subject { font-size: 0.8rem; } .row { padding: 5px 6px; font-size: 0.72rem; } .row .srno { min-width: 22px; font-size: 0.65rem; } .row .time { min-width: 52px; font-size: 0.65rem; } .row .duration-badge { font-size: 0.6rem; padding: 0 10px; } .row .subject { font-size: 0.7rem; } .status-bar { font-size: 0.7rem; padding: 4px 10px; gap: 4px; } .status-bar .remaining-time { font-size: 0.75rem; padding: 0 10px; } .footer { font-size: 0.6rem; flex-direction: column; align-items: stretch; gap: 4px; } .footer .exam-dates { justify-content: center; } .details-panel .detail-item .label { min-width: 70px; } }
     </style>
 </head>
 <body>
 <div class="card">
-    <div class="banner">
+    <div class="banner" id="bannerClick">
         <div class="banner-activity">
             <span class="status-dot"></span>
             <span class="banner-subject" id="currentActivity">Loading schedule…</span>
+            <span class="banner-hint">👆 Click for details</span>
         </div>
     </div>
 
@@ -69,6 +81,12 @@
 
     <div class="schedule-grid" id="scheduleContainer">
         <div class="loading-text">⏳ Loading from Google Sheet…<br><small>Please wait</small></div>
+    </div>
+
+    <div class="details-panel" id="detailsPanel">
+        <button class="close-btn" onclick="closeDetails()">✕</button>
+        <h4 id="detailTitle">Activity Details</h4>
+        <div id="detailContent"></div>
     </div>
 
     <div class="footer">
@@ -84,8 +102,10 @@
 const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTX16x-Eeh1mguy6se1B25x0hkRIzIme4pX71KlxpML_vZAD34mtlITIqFs8MCAVycXFFft82j1RZDc/pub?output=csv';
 
 let schedule = [];
+let detailsData = {};
 let mptDate = null;
 let writtenDate = null;
+let currentActivityName = '';
 
 const $ = id => document.getElementById(id);
 const container = $('scheduleContainer');
@@ -99,6 +119,9 @@ const mptDays = $('mptDays');
 const writtenDays = $('writtenDays');
 const mptDateDisplay = $('mptDateDisplay');
 const writtenDateDisplay = $('writtenDateDisplay');
+const detailsPanel = $('detailsPanel');
+const detailTitle = $('detailTitle');
+const detailContent = $('detailContent');
 
 function getPakistanTime() {
     const now = new Date();
@@ -192,6 +215,49 @@ function parseCSV(text) {
     return data.length ? data : null;
 }
 
+// Fetch details from "Details of activity" sheet
+async function fetchDetails() {
+    try {
+        // Try to get details from the same sheet but different sheet name
+        // Since we can't directly query by sheet name in CSV export, we'll use the same URL
+        // The details should be in the same CSV with additional columns
+        const res = await fetch(SHEET_URL, { cache: 'no-store' });
+        if (!res.ok) throw new Error('Failed to fetch details');
+        const csv = await res.text();
+        const lines = csv.split('\n').filter(l => l.trim());
+        if (lines.length < 2) return;
+        
+        const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+        const activityIdx = headers.findIndex(h => h.includes('activity') || h.includes('subject'));
+        
+        if (activityIdx === -1) return;
+        
+        // Find all columns that could be detail fields
+        const detailColumns = headers.filter((h, i) => i !== activityIdx && h && !h.includes('from') && !h.includes('to') && !h.includes('duration') && !h.includes('type') && !h.includes('mpt') && !h.includes('written') && !h.includes('test') && !h.includes('exam'));
+        
+        // Build details data
+        for (let i = 1; i < lines.length; i++) {
+            const cols = lines[i].split(',').map(c => c.trim());
+            if (cols.length < 2 || cols.every(c => !c)) continue;
+            
+            const activityName = cols[activityIdx] || '';
+            if (!activityName) continue;
+            
+            detailsData[activityName] = {};
+            for (const col of detailColumns) {
+                const colIdx = headers.indexOf(col);
+                if (colIdx !== -1 && cols[colIdx]) {
+                    detailsData[activityName][col] = cols[colIdx];
+                }
+            }
+        }
+        
+        console.log('📋 Loaded details for', Object.keys(detailsData).length, 'activities');
+    } catch (e) {
+        console.error('Error fetching details:', e);
+    }
+}
+
 async function loadSchedule() {
     try {
         const res = await fetch(SHEET_URL, { cache: 'no-store' });
@@ -200,6 +266,7 @@ async function loadSchedule() {
         const parsed = parseCSV(csv);
         if (parsed && parsed.length) {
             schedule = parsed;
+            await fetchDetails(); // Load details after schedule
             return true;
         }
         return false;
@@ -246,6 +313,26 @@ function getCurrent(now) {
     return { idx: Math.max(0, idx), remain };
 }
 
+function showDetails(activityName) {
+    const details = detailsData[activityName];
+    if (!details || Object.keys(details).length === 0) {
+        detailContent.innerHTML = '<p style="color: #94a3b8; font-size: 0.85rem;">No additional details available for this activity.</p>';
+    } else {
+        let html = '';
+        for (const [key, value] of Object.entries(details)) {
+            const label = key.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            html += `<div class="detail-item"><span class="label">${label}:</span><span class="value">${value || '—'}</span></div>`;
+        }
+        detailContent.innerHTML = html;
+    }
+    detailTitle.textContent = `📋 ${activityName}`;
+    detailsPanel.classList.add('active');
+}
+
+function closeDetails() {
+    detailsPanel.classList.remove('active');
+}
+
 function render() {
     const now = getPakistanTime();
     pkTime.textContent = formatFullDateTime(now);
@@ -255,6 +342,7 @@ function render() {
 
     const { idx, remain } = getCurrent(now);
     const item = schedule[idx] || { subject: 'No schedule', type: '' };
+    currentActivityName = item.subject;
 
     const prefix = { core: '📘 ', compulsory: '📖 ', optional: '📚 ', mpt: '📝 ', review: '📋 ' };
     let activity = item.subject;
@@ -279,10 +367,11 @@ function render() {
         if (isBreak) cls += ' break-row';
 
         const emoji = { core: ' ✏️', compulsory: ' 📖', optional: ' 📚', mpt: ' 📝', review: ' 📘', break: '', sleep: ' 🌙' };
-        html += `<div class="${cls}">
+        const hasDetails = detailsData[s.subject] && Object.keys(detailsData[s.subject]).length > 0;
+        html += `<div class="${cls}" onclick="showDetails('${s.subject.replace(/'/g, "\\'")}')" title="${hasDetails ? 'Click for details' : ''}">
             <span class="srno">${i + 1}</span>
             <span class="time">${s.from} – ${s.to}</span>
-            <span class="subject">${s.subject}${emoji[s.type] || ''}</span>
+            <span class="subject">${s.subject}${emoji[s.type] || ''}${hasDetails ? ' 📋' : ''}</span>
             <span class="duration-badge">${s.duration}</span>
         </div>`;
     }
@@ -291,6 +380,13 @@ function render() {
     doneCount.textContent = done;
     remainingCount.textContent = left;
 }
+
+// Click banner to show current activity details
+document.getElementById('bannerClick').addEventListener('click', function() {
+    if (currentActivityName) {
+        showDetails(currentActivityName);
+    }
+});
 
 async function init() {
     const loaded = await loadSchedule();
