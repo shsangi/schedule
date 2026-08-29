@@ -196,10 +196,13 @@
         let activityDetailsCache = {};
         let detailsLoaded = false;
 
-        // ----- GOOGLE SHEET URLs -----
+        // ----- GOOGLE SHEET URLS -----
         // REPLACE THESE WITH YOUR PUBLISHED CSV URLs
+        // Sheet 1: "CSS 2027 - 16-Hour Daily Schedule"
         const SCHEDULE_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTX16x-Eeh1mguy6se1B25x0hkRIzIme4pX71KlxpML_vZAD34mtlITIqFs8MCAVycXFFft82j1RZDc/pub?output=csv';
-        const DETAILS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTX16x-Eeh1mguy6se1B25x0hkRIzIme4pX71KlxpML_vZAD34mtlITIqFs8MCAVycXFFft82j1RZDc/pub?output=csv'; // REPLACE WITH YOUR DETAILS SHEET URL
+        
+        // Sheet 2: "Details of activity"
+        const DETAILS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTX16x-Eeh1mguy6se1B25x0hkRIzIme4pX71KlxpML_vZAD34mtlITIqFs8MCAVycXFFft82j1RZDc/pub?output=csv';
 
         // ----- DOM refs -----
         const container = document.getElementById('scheduleContainer');
@@ -375,12 +378,11 @@
             return parsed.length > 0 ? parsed : null;
         }
 
-        // ----- Parse CSV (Activity Details) with better handling -----
+        // ----- Parse CSV (Activity Details) -----
         function parseCSVToDetails(csvText) {
             const lines = csvText.split('\n').filter(line => line.trim() !== '');
             if (lines.length < 2) return {};
 
-            // Log first few lines for debugging
             console.log('📄 First 3 lines of CSV:', lines.slice(0, 3));
 
             const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
@@ -413,13 +415,11 @@
                     detailsMap[cleanName] = [];
                 }
 
-                // Get agenda and handle line breaks (CSV might have \n or actual line breaks)
+                // Get agenda and handle line breaks
                 let agenda = '';
                 if (agendaIdx !== -1 && cols.length > agendaIdx) {
                     agenda = cols[agendaIdx];
-                    // Replace \n with actual newlines
                     agenda = agenda.replace(/\\n/g, '\n');
-                    // Also handle if there are multiple lines in the cell
                     agenda = agenda.replace(/\r\n/g, '\n');
                 }
 
@@ -462,15 +462,17 @@
             return new Date(year, month, day);
         }
 
-        // ----- Fetch schedule -----
+        // ----- Fetch schedule from "CSS 2027 - 16-Hour Daily Schedule" -----
         async function loadScheduleFromSheet() {
             try {
+                console.log('📡 Fetching schedule from:', SCHEDULE_CSV_URL);
                 const response = await fetch(SCHEDULE_CSV_URL, { cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } });
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const csvText = await response.text();
                 const parsed = parseCSVToSchedule(csvText);
                 if (parsed && parsed.length > 0) {
                     schedule = parsed;
+                    console.log('✅ Loaded schedule with', schedule.length, 'entries');
                     return true;
                 }
                 return false;
@@ -480,7 +482,7 @@
             }
         }
 
-        // ----- Fetch activity details -----
+        // ----- Fetch activity details from "Details of activity" -----
         async function loadActivityDetails() {
             try {
                 console.log('📡 Fetching details from:', DETAILS_CSV_URL);
@@ -507,9 +509,8 @@
             }
         }
 
-        // ----- Get details for an activity (with fuzzy matching) -----
+        // ----- Get details for an activity -----
         function getDetailsForActivity(activityName) {
-            // Clean the activity name
             const cleanName = activityName.replace(/[☕🌙📚📖✏️📝📘📋]/g, '').trim();
             
             console.log(`🔍 Looking for details for: "${cleanName}"`);
@@ -636,12 +637,10 @@
         function showModal(activityName, from, to, duration) {
             const cleanName = activityName.replace(/[☕🌙📚📖✏️📝📘📋]/g, '').trim();
             
-            // Get details using improved matching
             const details = getDetailsForActivity(activityName);
             
             console.log(`📊 Showing details for "${cleanName}":`, details.length, 'records');
             
-            // Set basic info
             modalIcon.textContent = getIconForActivity(cleanName);
             modalTitle.textContent = cleanName;
             modalType.textContent = getTypeForActivity(cleanName);
@@ -650,7 +649,6 @@
             modalTo.textContent = to;
             modalDuration.textContent = duration;
 
-            // Build agenda list (already sorted by timestamp descending)
             if (details.length > 0) {
                 let html = '';
                 details.forEach((detail) => {
@@ -693,7 +691,7 @@
             document.body.style.overflow = 'hidden';
         }
 
-        // ----- Helper functions for modal -----
+        // ----- Helper functions -----
         function getIconForActivity(name) {
             const icons = {
                 'English Essay': '✏️',
@@ -773,7 +771,6 @@
                 const typeEmoji = { 'core': ' ✏️', 'compulsory': ' 📖', 'optional': ' 📚', 'mpt': ' 📝', 'review': ' 📘', 'break': '', 'sleep': ' 🌙' };
                 subjectDisplay += typeEmoji[s.type] || '';
 
-                // Get record count using improved matching
                 const details = getDetailsForActivity(s.subject);
                 const recordCount = details.length;
                 const countBadge = recordCount > 0 ? `<span class="record-count">${recordCount} 📋</span>` : '';
@@ -791,7 +788,6 @@
             doneCountEl.textContent = doneCount;
             remainingCountEl.textContent = remainingCount;
 
-            // Add click event listeners to rows
             document.querySelectorAll('.row').forEach(row => {
                 row.addEventListener('click', function() {
                     const subject = this.dataset.subject;
@@ -831,15 +827,13 @@
 
         // ----- Init -----
         async function init() {
-            container.innerHTML = '<div class="loading-text">⏳ Loading schedule…</div>';
+            container.innerHTML = '<div class="loading-text">⏳ Loading schedule from "CSS 2027 - 16-Hour Daily Schedule"…</div>';
             
-            // Load schedule
             const scheduleLoaded = await loadScheduleFromSheet();
             
-            // Load activity details
+            container.innerHTML = '<div class="loading-text">⏳ Loading activity details from "Details of activity"…</div>';
             await loadActivityDetails();
             
-            // Update UI
             if (!scheduleLoaded) {
                 container.innerHTML = '<div class="loading-text">⚠️ Using fallback schedule<br><small>Click any activity for details</small></div>';
             } else {
